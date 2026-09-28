@@ -421,7 +421,7 @@ type CommentHeaderProps = {
 };
 
 const CommentHeader: React.FC<CommentHeaderProps> = ({ comment, className = '' }) => {
-  const { member } = useAppContext();
+  const { member, locale, timezone } = useAppContext();
   const createdAtRelative = useRelativeTime(comment.created_at);
   const memberExpertise =
     member && comment.member && comment.member.uuid === member.uuid
@@ -433,7 +433,7 @@ const CommentHeader: React.FC<CommentHeaderProps> = ({ comment, className = '' }
       className="hover:underline"
       href={buildCommentPermalink(comment.id)}
       target="_parent"
-      title={formatExplicitTime(comment.created_at)}
+      title={formatExplicitTime(comment.created_at, locale, timezone)}
     >
       <span className="mx-[0.3em]">·</span>
       {createdAtRelative}

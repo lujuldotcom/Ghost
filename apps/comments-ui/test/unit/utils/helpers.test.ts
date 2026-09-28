@@ -158,13 +158,15 @@ describe('formatRelativeTime', () => {
           clock = sinon.useFakeTimers(new Date('2024-02-15T15:00:00.000Z'));
         }
         const time = moment().subtract(duration);
-        expect(helpers.formatRelativeTime(time.toISOString(), t)).toEqual(expected);
+        expect(helpers.formatRelativeTime(time.toISOString(), t, 'en-US', 'Etc/UTC')).toEqual(
+          expected,
+        );
       });
     });
   }
 
   it('handles invalid dates', function () {
-    expect(helpers.formatRelativeTime('invalid', t)).toEqual('Just now');
+    expect(helpers.formatRelativeTime('invalid', t, 'en-US', 'Etc/UTC')).toEqual('Just now');
   });
 
   const testCases: Array<[string, DurationInputObject, string, Date?]> = [
@@ -175,8 +177,8 @@ describe('formatRelativeTime', () => {
     ['2 minutes ago', { minutes: 2 }, '2 mins ago'],
     ['59 minutes ago', { minutes: 59 }, '59 mins ago'],
     ['60 minutes ago', { minutes: 60 }, 'One hour ago'],
-    ['89 minutes ago', { minutes: 89 }, 'One hour ago'], // rounds to nearest hour
-    ['90 minutes ago', { minutes: 90 }, '2 hrs ago'], // rounds to nearest hour
+    ['89 minutes ago', { minutes: 89 }, 'One hour ago'],
+    ['90 minutes ago', { minutes: 90 }, '2 hrs ago'],
     ['3 hours ago', { hours: 3 }, '3 hrs ago'],
     ['14 hours ago', { hours: 14 }, '14 hrs ago'],
     ['1 day ago', { days: 1 }, 'Yesterday'],
@@ -190,8 +192,8 @@ describe('formatRelativeTime', () => {
       new Date('2024-02-15T00:00:10.000Z'),
     ],
     ['yesterday > 2hrs ago', { hours: 2 }, 'Yesterday', new Date('2024-02-15T00:00:10.000Z')],
-    ['1 month ago', { months: 1 }, '15 Jan'],
-    ['1 year ago', { years: 1 }, '15 Feb 2023'],
+    ['1 month ago', { months: 1 }, 'Jan 15'],
+    ['1 year ago', { years: 1 }, 'Feb 15, 2023'],
   ];
 
   describe('in UTC', function () {
@@ -200,21 +202,125 @@ describe('formatRelativeTime', () => {
     });
   });
 
-  const localDayCases: Array<[string, string, string, string]> = [
+  const publicationDayCases: Array<[string, string, string, string]> = [
     ['America/Sao_Paulo', '2026-10-21T01:00:00.000Z', '2026-10-20T22:00:00.000Z', '3 hrs ago'],
     ['Asia/Tokyo', '2026-10-21T14:00:00.000Z', '2026-10-19T16:00:00.000Z', 'Yesterday'],
     ['America/New_York', '2025-03-10T14:00:00.000Z', '2025-03-09T16:00:00.000Z', 'Yesterday'],
   ];
 
-  describe('across local calendar days', function () {
-    localDayCases.forEach(([tz, now, date, expected]) => {
+  // The browser timezone is pinned to UTC so only the publication timezone can
+  // decide the calendar day.
+  describe('across publication calendar days', function () {
+    publicationDayCases.forEach(([tz, now, date, expected]) => {
       it(`${date} at ${now} in ${tz} = ${expected}`, function () {
-        withTz(tz, () => {
+        withTz('UTC', () => {
           clock = sinon.useFakeTimers(new Date(now));
-          expect(helpers.formatRelativeTime(date, t)).toEqual(expected);
+          expect(helpers.formatRelativeTime(date, t, 'en-US', tz)).toEqual(expected);
         });
       });
     });
+  });
+
+  it('formats an absolute date using the requested locale', function () {
+    clock = sinon.useFakeTimers(new Date('2024-02-15T15:00:00.000Z'));
+    const date = new Date('2024-01-15T15:00:00.000Z');
+
+    const expected = new Intl.DateTimeFormat('fr', {
+      timeZone: 'Etc/UTC',
+      day: 'numeric',
+      month: 'short',
+    }).format(date);
+
+    expect(helpers.formatRelativeTime(date.toISOString(), t, 'fr', 'Etc/UTC')).toEqual(expected);
+  });
+
+  it('evaluates Yesterday in the publication timezone', function () {
+    clock = sinon.useFakeTimers(new Date('2024-02-15T09:00:00.000Z'));
+
+    expect(
+      helpers.formatRelativeTime('2024-02-15T07:00:00.000Z', t, 'en-US', 'America/Los_Angeles'),
+    ).toEqual('Yesterday');
+
+    expect(helpers.formatRelativeTime('2024-02-15T07:00:00.000Z', t, 'en-US', 'Etc/UTC')).toEqual(
+      '2 hrs ago',
+    );
+  });
+
+  it('formats the civil day in the publication timezone', function () {
+    clock = sinon.useFakeTimers(new Date('2024-02-20T12:00:00.000Z'));
+
+    expect(
+      helpers.formatRelativeTime('2024-02-15T00:30:00.000Z', t, 'en-US', 'America/Los_Angeles'),
+    ).toEqual('Feb 14');
+
+    expect(helpers.formatRelativeTime('2024-02-15T00:30:00.000Z', t, 'en-US', 'Etc/UTC')).toEqual(
+      'Feb 15',
+    );
+  });
+
+  it('compares years in the publication timezone', function () {
+    clock = sinon.useFakeTimers(new Date('2024-01-01T01:00:00.000Z'));
+
+    expect(
+      helpers.formatRelativeTime('2023-12-29T20:00:00.000Z', t, 'en-US', 'America/Los_Angeles'),
+    ).toEqual('Dec 29');
+
+    expect(helpers.formatRelativeTime('2023-12-29T20:00:00.000Z', t, 'en-US', 'Etc/UTC')).toEqual(
+      'Dec 29, 2023',
+    );
+  });
+});
+
+describe('formatExplicitTime', function () {
+  const dateString = '2026-05-27T13:44:00.000Z';
+  const date = new Date(dateString);
+
+  it('formats using the requested English locale and publication timezone', function () {
+    const expected = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+
+    expect(helpers.formatExplicitTime(dateString, 'en-US', 'Europe/Paris')).toEqual(expected);
+  });
+
+  it('formats using the requested French locale and publication timezone', function () {
+    const expected = new Intl.DateTimeFormat('fr', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+
+    expect(helpers.formatExplicitTime(dateString, 'fr', 'Europe/Paris')).toEqual(expected);
+  });
+
+  it('keeps a valid timezone when the locale is invalid', function () {
+    const expected = helpers.formatExplicitTime(dateString, 'en', 'America/Los_Angeles');
+
+    expect(helpers.formatExplicitTime(dateString, 'invalid_locale', 'America/Los_Angeles')).toEqual(
+      expected,
+    );
+  });
+
+  it('keeps a valid locale when the timezone is invalid', function () {
+    const expected = helpers.formatExplicitTime(dateString, 'fr', 'Etc/UTC');
+
+    expect(helpers.formatExplicitTime(dateString, 'fr', 'Mars/Olympus')).toEqual(expected);
+  });
+
+  it('falls back to English and UTC when both authorities are invalid', function () {
+    const expected = helpers.formatExplicitTime(dateString, 'en', 'Etc/UTC');
+
+    expect(helpers.formatExplicitTime(dateString, 'invalid_locale', 'Mars/Olympus')).toEqual(
+      expected,
+    );
   });
 });
 

@@ -46,6 +46,7 @@ describe('{{comments}} helper', function () {
   it('returns a script tag', async function () {
     settingsCacheGetStub.withArgs('members_enabled').returns(true);
     settingsCacheGetStub.withArgs('comments_enabled').returns('all');
+    settingsCacheGetStub.withArgs('timezone').returns('Europe/Paris');
 
     const rendered = await comments.call(
       {
@@ -77,6 +78,7 @@ describe('{{comments}} helper', function () {
     assert(rendered.string.includes('data-avatar-saturation="60"'));
     assert(rendered.string.includes('data-accent-color=""'));
     assert(rendered.string.includes('data-comments-enabled="all"'));
+    assert(rendered.string.includes('data-timezone="Europe/Paris"'));
   });
 
   it('returns a script tag for paid only commenting', async function () {
@@ -113,6 +115,7 @@ describe('{{comments}} helper', function () {
     assert(rendered.string.includes('data-avatar-saturation="60"'));
     assert(rendered.string.includes('data-accent-color=""'));
     assert(rendered.string.includes('data-comments-enabled="paid"'));
+    assert(rendered.string.includes('data-timezone="Etc/UTC"'));
   });
 
   it('returns undefined when comments are disabled', async function () {

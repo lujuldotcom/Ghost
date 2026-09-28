@@ -54,6 +54,7 @@ module.exports = async function comments(options) {
 
   const data = {
     locale: settingsCache.get('locale') || 'en',
+    timezone: settingsCache.get('timezone') || 'Etc/UTC',
     'ghost-comments': urlUtils.getSiteUrl(),
     api: urlUtils.urlFor('api', { type: 'content' }, true),
     admin: urlUtils.urlFor('admin', true),

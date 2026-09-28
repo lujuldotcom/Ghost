@@ -59,6 +59,7 @@ export type LabsContextType = {
 
 export type CommentsOptions = {
   locale: string;
+  timezone: string;
   outfitRegularUrl: string | undefined;
   outfitBoldUrl: string | undefined;
   siteUrl: string;

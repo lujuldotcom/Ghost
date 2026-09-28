@@ -1,7 +1,8 @@
 import React from 'react';
 import sinon from 'sinon';
+import { AppContext } from '../../../src/app-context';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { useOutOfViewportClasses } from '../../../src/utils/hooks';
+import { useOutOfViewportClasses, useRelativeTime } from '../../../src/utils/hooks';
 
 describe('useOutOfViewportClasses', () => {
   const classes = {
@@ -74,5 +75,81 @@ describe('useOutOfViewportClasses', () => {
     fireEvent.resize(window);
 
     expect(element).toHaveClass('out-top', 'out-bottom', 'out-left', 'out-right');
+  });
+});
+
+describe('useRelativeTime', () => {
+  let clock: sinon.SinonFakeTimers;
+
+  const t = (key: string, vars?: Record<string, string | number>) => {
+    if (vars) {
+      return key.replace('{amount}', vars.amount.toString());
+    }
+    return key;
+  };
+
+  const RelativeTime = ({ dateString }: { dateString: string }) => {
+    const value = useRelativeTime(dateString);
+    return <span data-testid="relative-time">{value}</span>;
+  };
+
+  function context(locale: string, timezone: string) {
+    return {
+      locale,
+      timezone,
+      t,
+    } as any;
+  }
+
+  afterEach(() => {
+    clock?.restore();
+  });
+
+  it('recalculates when locale or timezone changes', () => {
+    clock = sinon.useFakeTimers(new Date('2024-02-20T12:00:00.000Z'));
+    const dateString = '2024-02-15T00:30:00.000Z';
+    const date = new Date(dateString);
+
+    const { rerender } = render(
+      <AppContext.Provider value={context('en-US', 'Etc/UTC')}>
+        <RelativeTime dateString={dateString} />
+      </AppContext.Provider>,
+    );
+
+    expect(screen.getByTestId('relative-time')).toHaveTextContent(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Etc/UTC',
+        day: 'numeric',
+        month: 'short',
+      }).format(date),
+    );
+
+    rerender(
+      <AppContext.Provider value={context('fr', 'Etc/UTC')}>
+        <RelativeTime dateString={dateString} />
+      </AppContext.Provider>,
+    );
+
+    expect(screen.getByTestId('relative-time')).toHaveTextContent(
+      new Intl.DateTimeFormat('fr', {
+        timeZone: 'Etc/UTC',
+        day: 'numeric',
+        month: 'short',
+      }).format(date),
+    );
+
+    rerender(
+      <AppContext.Provider value={context('fr', 'America/Los_Angeles')}>
+        <RelativeTime dateString={dateString} />
+      </AppContext.Provider>,
+    );
+
+    expect(screen.getByTestId('relative-time')).toHaveTextContent(
+      new Intl.DateTimeFormat('fr', {
+        timeZone: 'America/Los_Angeles',
+        day: 'numeric',
+        month: 'short',
+      }).format(date),
+    );
   });
 });

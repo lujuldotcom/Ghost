@@ -54,7 +54,84 @@ export function formatNumber(number: number): string {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-export function formatRelativeTime(dateString: string, t: TranslationFunction): string {
+const DEFAULT_DATE_LOCALE = 'en';
+const DEFAULT_TIMEZONE = 'Etc/UTC';
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+type DateFormattingAuthorities = {
+  locale: string;
+  timezone: string;
+};
+
+type CalendarDateParts = {
+  year: number;
+  month: number;
+  day: number;
+};
+
+function resolveDateFormattingAuthorities(
+  locale: string = DEFAULT_DATE_LOCALE,
+  timezone: string = DEFAULT_TIMEZONE,
+): DateFormattingAuthorities {
+  const requestedLocale = locale || DEFAULT_DATE_LOCALE;
+  const requestedTimezone = timezone || DEFAULT_TIMEZONE;
+
+  const candidates: Array<[string, string]> = [
+    [requestedLocale, requestedTimezone],
+    [DEFAULT_DATE_LOCALE, requestedTimezone],
+    [requestedLocale, DEFAULT_TIMEZONE],
+    [DEFAULT_DATE_LOCALE, DEFAULT_TIMEZONE],
+  ];
+
+  for (const [candidateLocale, candidateTimezone] of candidates) {
+    try {
+      new Intl.DateTimeFormat(candidateLocale, { timeZone: candidateTimezone }).format();
+      return {
+        locale: candidateLocale,
+        timezone: candidateTimezone,
+      };
+    } catch {
+      // Try the next locale/timezone combination.
+    }
+  }
+
+  return {
+    locale: DEFAULT_DATE_LOCALE,
+    timezone: DEFAULT_TIMEZONE,
+  };
+}
+
+function getCalendarDateParts(date: Date, timezone: string): CalendarDateParts {
+  const formatter = new Intl.DateTimeFormat('en', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+
+  const parts = formatter.formatToParts(date);
+  const getPart = (type: Intl.DateTimeFormatPartTypes) => {
+    const value = parts.find((part) => part.type === type)?.value;
+    return Number(value);
+  };
+
+  return {
+    year: getPart('year'),
+    month: getPart('month'),
+    day: getPart('day'),
+  };
+}
+
+function getCivilDayNumber(parts: CalendarDateParts): number {
+  return Date.UTC(parts.year, parts.month - 1, parts.day) / MS_PER_DAY;
+}
+
+export function formatRelativeTime(
+  dateString: string,
+  t: TranslationFunction,
+  locale: string = DEFAULT_DATE_LOCALE,
+  timezone: string = DEFAULT_TIMEZONE,
+): string {
   const date = new Date(dateString);
   const now = new Date();
 
@@ -83,41 +160,54 @@ export function formatRelativeTime(dateString: string, t: TranslationFunction): 
     return t('One hour ago');
   }
 
-  // Compare local calendar days using UTC ordinals to avoid DST-length days.
-  const dateLocalDay = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-  const nowLocalDay = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  const dayDiff = Math.floor((nowLocalDay - dateLocalDay) / (1000 * 60 * 60 * 24));
+  const authorities = resolveDateFormattingAuthorities(locale, timezone);
+  const dateParts = getCalendarDateParts(date, authorities.timezone);
+  const nowParts = getCalendarDateParts(now, authorities.timezone);
+  const dayDiff = getCivilDayNumber(nowParts) - getCivilDayNumber(dateParts);
 
   if (dayDiff === 1) {
     return t('Yesterday');
   }
 
   if (dayDiff > 1) {
-    const day = date.getDate();
-    const month = date.toLocaleString('en-us', { month: 'short' });
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: authorities.timezone,
+      day: 'numeric',
+      month: 'short',
+    };
 
-    // If it's from a different year, include the year
-    if (date.getFullYear() !== now.getFullYear()) {
-      return `${day} ${month} ${date.getFullYear()}`;
+    if (dateParts.year !== nowParts.year) {
+      options.year = 'numeric';
     }
-    // If it's from this year but not today/yesterday, show date without year
-    return `${day} ${month}`;
+
+    return new Intl.DateTimeFormat(authorities.locale, options).format(date);
   }
 
   // We're not older than yesterday, so show relative hours
   return t('{amount} hrs ago', { amount: hoursDiff });
 }
 
-export function formatExplicitTime(dateString: string): string {
+export function formatExplicitTime(
+  dateString: string,
+  locale: string = DEFAULT_DATE_LOCALE,
+  timezone: string = DEFAULT_TIMEZONE,
+): string {
   const date = new Date(dateString);
 
-  const day = date.toLocaleDateString('en-us', { day: '2-digit' }); // eg. 01
-  const month = date.toLocaleString('en-us', { month: 'short' }); // eg. Jan
-  const year = date.getFullYear(); // eg. 2022
-  const hour = (date.getHours() < 10 ? '0' : '') + date.getHours(); // eg. 02
-  const minute = (date.getMinutes() < 10 ? '0' : '') + date.getMinutes(); // eg. 09
+  if (isNaN(date.getTime())) {
+    return dateString;
+  }
 
-  return `${day} ${month} ${year} ${hour}:${minute}`;
+  const authorities = resolveDateFormattingAuthorities(locale, timezone);
+
+  return new Intl.DateTimeFormat(authorities.locale, {
+    timeZone: authorities.timezone,
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
 }
 
 export function getInitials(name: string): string {
