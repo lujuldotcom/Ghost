@@ -388,12 +388,6 @@ html[dir=rtl] .gh-portal-signup-terms .checkbox:before {
     }
 }
 
-@media (min-width: 480px) and (max-width: 820px) {
-    .gh-portal-powered.outside {
-        left: 50%;
-        transform: translateX(-50%);
-    }
-}
 `;
 
 class SignupPage extends React.Component {
