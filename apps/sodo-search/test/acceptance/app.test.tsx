@@ -350,10 +350,14 @@ test('opens from a trigger added after mount, even inside an element that stops 
   wrapper.remove();
 });
 
-test('renders right-to-left with translations for an RTL locale', async () => {
-  mountApp('ar');
+// The lujul public-app build aliases Search's Ghost i18n registry to an en/fr-only
+// registry, so the bundled non-English locale is French.
+test('renders with translations for a bundled French locale', async () => {
+  mountApp('fr');
   const doc = await openFromTrigger();
 
-  expect(doc.documentElement.getAttribute('dir')).toBe('rtl');
-  expect(doc.querySelector('input')!.placeholder).toBe('قم بالبحث عن المنشورات، الوسوم و الكتّاب');
+  expect(doc.documentElement.getAttribute('dir')).toBe('ltr');
+  expect(doc.querySelector('input')!.placeholder).toBe(
+    'Rechercher des articles, des catégories et des auteurs',
+  );
 });

@@ -1,4 +1,5 @@
 /* eslint-env node */
+import { resolve } from 'path';
 import pkg from './package.json';
 import { publicAppViteConfig } from '@internal/cfg-vite-public-app';
 
@@ -20,6 +21,13 @@ export default publicAppViteConfig({
         {
           find: /^flexsearch$/,
           replacement: `${import.meta.dirname}/node_modules/flexsearch/dist/flexsearch.compact.module.min.js`,
+        },
+        {
+          find: '@tryghost/i18n/registry/search',
+          replacement: resolve(
+            import.meta.dirname,
+            '../../packages/i18n/src/registry-lujul/search.ts',
+          ),
         },
       ],
     },

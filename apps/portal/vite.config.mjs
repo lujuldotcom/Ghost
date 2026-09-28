@@ -1,4 +1,5 @@
 /* eslint-env node */
+import { resolve } from 'path';
 import pkg from './package.json';
 import { publicAppViteConfig } from '@internal/cfg-vite-public-app';
 
@@ -13,6 +14,12 @@ export default publicAppViteConfig({
     },
     resolve: {
       dedupe: ['@tryghost/debug'],
+      alias: {
+        '@tryghost/i18n/registry/portal': resolve(
+          import.meta.dirname,
+          '../../packages/i18n/src/registry-lujul/portal.ts',
+        ),
+      },
     },
     test: {
       setupFiles: './test/setup-tests.js',
