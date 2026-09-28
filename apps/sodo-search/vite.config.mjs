@@ -21,11 +21,12 @@ export default publicAppViteConfig({
     },
     build: {
       rollupOptions: {
-        external: ['react', 'react-dom'],
+        external: ['react', 'react-dom', 'react/jsx-runtime'],
         output: {
           globals: {
             react: 'React',
             'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'ReactJSXRuntime',
           },
           // Theme templates reference umd/main.css by name (see
           // ghost/core defaults.json → sodoSearch.styles), so the
