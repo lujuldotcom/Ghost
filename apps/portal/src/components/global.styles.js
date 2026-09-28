@@ -63,6 +63,13 @@ export const GlobalStyles = `
         height: 100%;
     }
 
+    body::selection,
+    body ::selection {
+        color: #f5f5f5;
+        background: #666666;
+        -webkit-text-fill-color: #f5f5f5;
+    }
+
     body {
         margin: 0px;
         font-family: Outfit, system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
