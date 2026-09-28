@@ -1,13 +1,4 @@
-export const getDateString = (isoDate) => {
-  if (!isoDate) {
-    return '';
-  }
-  const event = new Date(isoDate);
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return event.toLocaleDateString('en-GB', options);
-};
-
-const DEFAULT_DATE_LOCALE = 'en-GB';
+const DEFAULT_DATE_LOCALE = 'en';
 const DEFAULT_TIMEZONE = 'Etc/UTC';
 const DATE_FORMAT = { year: 'numeric', month: 'short', day: 'numeric' };
 
@@ -77,10 +68,12 @@ export const getSiteDateString = (isoDate, { locale, timezone } = {}) => {
   // A publication's locale is stored unvalidated, so a tag Intl rejects
   // ("en_US") would otherwise throw a RangeError mid-render. Drop the
   // publication's settings one at a time rather than take the page down.
+  const requestedLocale = locale || DEFAULT_DATE_LOCALE;
   const timeZone = timezone || DEFAULT_TIMEZONE;
   const formatter =
-    dateFormatterFor(locale || DEFAULT_DATE_LOCALE, timeZone) ||
+    dateFormatterFor(requestedLocale, timeZone) ||
     dateFormatterFor(DEFAULT_DATE_LOCALE, timeZone) ||
+    dateFormatterFor(requestedLocale, DEFAULT_TIMEZONE) ||
     new Intl.DateTimeFormat(DEFAULT_DATE_LOCALE, { ...DATE_FORMAT, timeZone: DEFAULT_TIMEZONE });
 
   const date = new Date(isoDate);
@@ -89,4 +82,35 @@ export const getSiteDateString = (isoDate, { locale, timezone } = {}) => {
   }
 
   return formatter.format(date);
+};
+
+export const getCalendarDateString = (value, { locale } = {}) => {
+  if (!value) {
+    return '';
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
+  if (!match) {
+    return '';
+  }
+
+  const [, yearValue, monthValue, dayValue] = match;
+  const year = Number(yearValue);
+  const month = Number(monthValue);
+  const day = Number(dayValue);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return '';
+  }
+
+  const formatter =
+    dateFormatterFor(locale || DEFAULT_DATE_LOCALE, DEFAULT_TIMEZONE) ||
+    dateFormatterFor(DEFAULT_DATE_LOCALE, DEFAULT_TIMEZONE);
+
+  return formatter ? formatter.format(date) : '';
 };

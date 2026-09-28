@@ -1,4 +1,4 @@
-import { getDateString } from './date-time';
+import { getSiteDateString } from './date-time';
 import { t } from './i18n';
 
 export function removePortalLinkFromUrl() {
@@ -101,10 +101,10 @@ export function hasNewsletterSendingEnabled({ site }) {
   return site?.editor_default_email_recipients !== 'disabled';
 }
 
-export function getSubscriptionExpiry({ member }) {
+export function getSubscriptionExpiry({ member, locale, timezone }) {
   const subscription = getMemberSubscription({ member });
   if (subscription?.tier?.expiry_at) {
-    return getDateString(subscription.tier.expiry_at);
+    return getSiteDateString(subscription.tier.expiry_at, { locale, timezone });
   }
   return '';
 }

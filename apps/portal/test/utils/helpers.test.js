@@ -802,14 +802,16 @@ describe('Helpers - ', () => {
     });
 
     it('returns the expiry date of a comped subscription', () => {
-      const date = new Date('2023-10-13T00:00:00.000Z');
-      expect(getSubscriptionExpiry({ member })).toEqual(
-        date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }),
-      );
+      expect(
+        getSubscriptionExpiry({
+          member,
+          locale: 'fr',
+          timezone: 'Etc/UTC',
+        }),
+      ).toEqual('13 oct. 2023');
     });
 
     it('returns the expiry date of a comped subscription if the member has multiple subscriptions', () => {
-      const date = new Date('2023-10-13T00:00:00.000Z');
       member.subscriptions.push({
         status: 'cancelled',
         price: {
@@ -819,9 +821,13 @@ describe('Helpers - ', () => {
           expiry_at: '2023-10-14T00:00:00.000Z',
         },
       });
-      expect(getSubscriptionExpiry({ member })).toEqual(
-        date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }),
-      );
+      expect(
+        getSubscriptionExpiry({
+          member,
+          locale: 'fr',
+          timezone: 'Etc/UTC',
+        }),
+      ).toEqual('13 oct. 2023');
     });
 
     it('returns an empty string if the subscription has no expiry date', () => {

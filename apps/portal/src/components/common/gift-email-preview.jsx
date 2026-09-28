@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Interpolate from '@doist/react-interpolate';
+import AppContext from '../../app-context';
 import CheckmarkIcon from '../../images/icons/checkmark.svg?react';
 import QuoteIcon from '../../images/icons/quote.svg?react';
-import { getDateString, parseDateValue } from '../../utils/date-time';
+import { getCalendarDateString, getDateInputValue } from '../../utils/date-time';
 import { getGiftIntroduction } from '../../utils/gift-redemption-notification';
 import { t } from '../../utils/i18n';
 
@@ -28,13 +29,15 @@ const GiftEmailPreview = ({
   siteTitle,
   siteIcon,
 }) => {
+  const { locale = 'en', site } = useContext(AppContext);
   const toName = recipientName.trim();
   const toEmail = recipientEmail.trim();
   const fromName = buyerName.trim();
   const message = giftMessage.trim();
 
-  const todayDate = getDateString(new Date());
-  const scheduledDate = getDateString(parseDateValue(deliveryDate)) || todayDate;
+  const todayValue = getDateInputValue(new Date(), site?.timezone);
+  const todayDate = getCalendarDateString(todayValue, { locale });
+  const scheduledDate = getCalendarDateString(deliveryDate, { locale }) || todayDate;
   // The last future date is kept so the scheduled label stays legible while
   // its side of the date stack cross-fades out after switching back to
   // "now" — otherwise it would hard-swap to today's date mid-fade.

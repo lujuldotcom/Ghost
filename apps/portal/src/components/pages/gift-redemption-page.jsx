@@ -56,7 +56,15 @@ export const GiftRedemptionStyles = `
 `;
 
 const GiftRedemptionPage = () => {
-  const { action, brandColor, doAction, member, pageData, site } = useContext(AppContext);
+  const {
+    action,
+    brandColor,
+    doAction,
+    member,
+    pageData,
+    site,
+    locale = 'en',
+  } = useContext(AppContext);
   const gift = pageData?.gift;
   const isLoggedIn = !!member;
   const [name, setName] = useState(gift?.recipient_name || member?.name || '');
@@ -194,7 +202,7 @@ const GiftRedemptionPage = () => {
     siteTitle,
   });
   const expiryLabel = gift.expires_at
-    ? getSiteDateString(gift.expires_at, { locale: site?.locale, timezone: site?.timezone })
+    ? getSiteDateString(gift.expires_at, { locale, timezone: site?.timezone })
     : '';
   const benefits = gift.tier.benefits || [];
   const tierDescription = gift.tier.description || '';

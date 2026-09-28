@@ -7,14 +7,14 @@ import {
   isGiftMember,
   subscriptionHasFreeTrial,
 } from '../../../../utils/helpers';
-import { getDateString } from '../../../../utils/date-time';
+import { getSiteDateString } from '../../../../utils/date-time';
 import { useContext } from 'react';
 
 import SubscribeButton from './subscribe-button';
 import { t } from '../../../../utils/i18n';
 
 const AccountWelcome = () => {
-  const { member, site } = useContext(AppContext);
+  const { member, site, locale = 'en' } = useContext(AppContext);
   const { paid_members_enabled: paidMembersEnabled } = site;
 
   if (!paidMembersEnabled || hasOnlyFreePlan({ site })) {
@@ -27,7 +27,11 @@ const AccountWelcome = () => {
   }
   if (subscription) {
     const currentPeriodEnd = subscription?.current_period_end;
-    const subscriptionExpiry = getSubscriptionExpiry({ member });
+    const subscriptionExpiry = getSubscriptionExpiry({
+      member,
+      locale,
+      timezone: site?.timezone,
+    });
     if (isGiftMember({ member })) {
       if (subscriptionExpiry) {
         return (
@@ -60,7 +64,10 @@ const AccountWelcome = () => {
     }
 
     if (subscriptionHasFreeTrial({ sub: subscription })) {
-      const trialEnd = getDateString(subscription.trial_end_at);
+      const trialEnd = getSiteDateString(subscription.trial_end_at, {
+        locale,
+        timezone: site?.timezone,
+      });
       return (
         <div className="gh-portal-section">
           <p className="gh-portal-text-center gh-portal-free-ctatext">
@@ -76,7 +83,10 @@ const AccountWelcome = () => {
       <div className="gh-portal-section">
         <p className="gh-portal-text-center gh-portal-free-ctatext">
           {t(`Your subscription will renew on {renewalDate}`, {
-            renewalDate: getDateString(currentPeriodEnd),
+            renewalDate: getSiteDateString(currentPeriodEnd, {
+              locale,
+              timezone: site?.timezone,
+            }),
           })}
         </p>
       </div>

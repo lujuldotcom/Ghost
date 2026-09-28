@@ -119,8 +119,11 @@ const NotificationText = ({ type, status, message, context }) => {
     );
   } else if (type === 'giftRedeem' && status === 'success') {
     const successMessage =
-      getGiftRedemptionSuccessMessage({ member: context.member }) ||
-      t("Gift redeemed! You're all set.");
+      getGiftRedemptionSuccessMessage({
+        member: context.member,
+        locale: context.locale,
+        timezone: context.site?.timezone,
+      }) || t("Gift redeemed! You're all set.");
 
     return <p>{successMessage}</p>;
   } else if (type === 'stripe:checkout' && status === 'success') {

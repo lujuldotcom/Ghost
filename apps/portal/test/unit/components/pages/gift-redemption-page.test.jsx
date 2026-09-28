@@ -201,6 +201,7 @@ describe('GiftRedemptionPage details', () => {
       expires_at: '2030-01-01T01:00:00.000Z',
     };
     const { getByText } = renderGiftRedemptionPage(GiftRedemptionPage, {
+      locale: 'fr',
       site: {
         ...testSite,
         locale: 'en-GB',
@@ -212,6 +213,6 @@ describe('GiftRedemptionPage details', () => {
       },
     });
 
-    expect(getByText(/expires on 31 Dec 2029\./i)).toBeInTheDocument();
+    expect(getByText(/expires on 31 déc\. 2029\./i)).toBeInTheDocument();
   });
 });

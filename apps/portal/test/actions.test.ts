@@ -536,7 +536,7 @@ describe('redeemGift action', () => {
                 status: 'active',
                 tier: {
                   name: 'Premium',
-                  expiry_at: '2027-05-29T12:00:00.000Z',
+                  expiry_at: '2027-05-29T00:30:00.000Z',
                 },
               },
             ],
@@ -547,6 +547,10 @@ describe('redeemGift action', () => {
       },
     };
     const state = {
+      locale: 'en',
+      site: {
+        timezone: 'America/Los_Angeles',
+      },
       member: {
         name: 'Jamie Larson',
         email: 'jamie@example.com',
@@ -589,7 +593,7 @@ describe('redeemGift action', () => {
       notification: {
         type: 'giftRedeem',
         status: 'success',
-        message: 'You now have access to Premium until 29 May 2027. Enjoy!',
+        message: 'You now have access to Premium until May 28, 2027. Enjoy!',
       },
     });
     // Ensure the account page is no longer rendered after redemption.

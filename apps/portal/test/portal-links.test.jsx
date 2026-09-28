@@ -6,7 +6,7 @@ import {
 } from './utils/test-fixtures';
 import { appRender, fireEvent, waitFor, within } from './utils/test-utils';
 import setupGhostApi from '../src/utils/api';
-import { toDateValue } from '../src/utils/date-time';
+import { getCalendarDateString, toDateValue } from '../src/utils/date-time';
 import { GIFT_FORM_STATE_KEY, createGiftFormState } from '../src/components/pages/gift/form-state';
 
 const defaultGiftResponse = {
@@ -738,10 +738,8 @@ describe('Portal Data links:', () => {
       futureDate.setDate(futureDate.getDate() + 60);
       const deliveryDateValue = toDateValue(futureDate);
       const scheduledAtValue = futureDate.getTime();
-      const formattedDeliveryDate = futureDate.toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+      const formattedDeliveryDate = getCalendarDateString(deliveryDateValue, {
+        locale: 'en',
       });
       window.location.href = `https://portal.localhost/?stripe=gift-purchase-success&gift_token=abc123&gift_tier=${tierId}&gift_cadence=year&gift_duration=12&gift_delivery=email&gift_delivery_date=${deliveryDateValue}&gift_scheduled_at=${scheduledAtValue}`;
       window.location.search = `?stripe=gift-purchase-success&gift_token=abc123&gift_tier=${tierId}&gift_cadence=year&gift_duration=12&gift_delivery=email&gift_delivery_date=${deliveryDateValue}&gift_scheduled_at=${scheduledAtValue}`;

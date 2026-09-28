@@ -66,9 +66,9 @@ export function getGiftIntroduction({ buyerName, cadence, duration, siteTitle } 
   });
 }
 
-export function getGiftRedemptionSuccessMessage({ member } = {}) {
+export function getGiftRedemptionSuccessMessage({ member, locale, timezone } = {}) {
   const tierName = getMemberTierName({ member });
-  const expiryDate = getSubscriptionExpiry({ member });
+  const expiryDate = getSubscriptionExpiry({ member, locale, timezone });
   if (!tierName || !expiryDate) {
     return null;
   }

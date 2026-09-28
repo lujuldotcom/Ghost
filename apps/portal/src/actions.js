@@ -324,7 +324,11 @@ async function redeemGift({ data, state, api }) {
         autoHide: true,
         closeable: true,
         state,
-        message: getGiftRedemptionSuccessMessage({ member }),
+        message: getGiftRedemptionSuccessMessage({
+          member,
+          locale: state.locale,
+          timezone: state.site?.timezone,
+        }),
       });
       removePortalLinkFromUrl();
 

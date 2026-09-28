@@ -40,7 +40,7 @@ describe('AccountWelcome', () => {
 
     const { queryByText } = setup({ site, member });
 
-    expect(queryByText('Your gift subscription will expire on 12 Apr 2099')).toBeInTheDocument();
+    expect(queryByText('Your gift subscription will expire on Apr 12, 2099')).toBeInTheDocument();
   });
 
   test('uses current period end for renewal date on free months offers', () => {
@@ -81,7 +81,7 @@ describe('AccountWelcome', () => {
 
     const { queryByText } = setup({ site, member });
 
-    expect(queryByText('Your subscription will renew on 15 Jan 2099')).toBeInTheDocument();
-    expect(queryByText('Your subscription will renew on 15 Mar 2099')).not.toBeInTheDocument();
+    expect(queryByText('Your subscription will renew on Jan 15, 2099')).toBeInTheDocument();
+    expect(queryByText('Your subscription will renew on Mar 15, 2099')).not.toBeInTheDocument();
   });
 });

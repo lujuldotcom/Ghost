@@ -10,7 +10,7 @@ import { t } from '../../../../utils/i18n';
 import { useContext } from 'react';
 
 const ContinueGiftSubscriptionBanner = () => {
-  const { member, site, doAction, action, brandColor } = useContext(AppContext);
+  const { member, site, doAction, action, brandColor, locale = 'en' } = useContext(AppContext);
 
   const canContinueGiftSubscription =
     isGiftMember({ member }) &&
@@ -20,7 +20,11 @@ const ContinueGiftSubscriptionBanner = () => {
     return null;
   }
 
-  const expiryDate = getSubscriptionExpiry({ member });
+  const expiryDate = getSubscriptionExpiry({
+    member,
+    locale,
+    timezone: site?.timezone,
+  });
   if (!expiryDate) {
     return null;
   }

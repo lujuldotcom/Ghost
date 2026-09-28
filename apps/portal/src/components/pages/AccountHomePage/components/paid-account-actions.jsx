@@ -11,7 +11,7 @@ import {
   arePaidMembersEnabled,
   subscriptionHasFreeTrial,
 } from '../../../../utils/helpers';
-import { getDateString } from '../../../../utils/date-time';
+import { getSiteDateString } from '../../../../utils/date-time';
 import GiftIcon from '../../../../images/icons/gift.svg?react';
 import LoaderIcon from '../../../../images/icons/loader.svg?react';
 import OfferTagIcon from '../../../../images/icons/offer-tag.svg?react';
@@ -44,7 +44,11 @@ const PaidAccountActions = () => {
       label = `${Intl.NumberFormat(locale || 'en', { currency, style: 'currency' }).format(amount / 100)}/${t(interval)}`;
     }
 
-    const subscriptionExpiry = getSubscriptionExpiry({ member });
+    const subscriptionExpiry = getSubscriptionExpiry({
+      member,
+      locale,
+      timezone: site?.timezone,
+    });
 
     if (isGiftMember({ member }) && subscriptionExpiry) {
       return (
@@ -75,12 +79,12 @@ const PaidAccountActions = () => {
       return (
         <>
           <p className={oldPriceClassName}>{label}</p>
-          <FreeTrialLabel subscription={subscription} />
+          <FreeTrialLabel subscription={subscription} locale={locale} timezone={site?.timezone} />
         </>
       );
     }
 
-    const offerLabelStr = getOfferLabel({ nextPayment, locale });
+    const offerLabelStr = getOfferLabel({ nextPayment, locale, timezone: site?.timezone });
 
     if (offerLabelStr) {
       oldPriceClassName = 'gh-portal-account-old-price';
@@ -246,9 +250,9 @@ const PaidAccountActions = () => {
   return null;
 };
 
-function FreeTrialLabel({ subscription }) {
+function FreeTrialLabel({ subscription, locale, timezone }) {
   if (subscriptionHasFreeTrial({ sub: subscription })) {
-    const trialEnd = getDateString(subscription.trial_end_at);
+    const trialEnd = getSiteDateString(subscription.trial_end_at, { locale, timezone });
     return (
       <p className="gh-portal-account-discountcontainer">
         <div>
@@ -283,7 +287,7 @@ function FreeTrialLabel({ subscription }) {
  *
  * @returns {string}
  */
-function getOfferLabel({ nextPayment, locale = 'en' }) {
+function getOfferLabel({ nextPayment, locale = 'en', timezone }) {
   if (!nextPayment) {
     return '';
   }
@@ -296,7 +300,9 @@ function getOfferLabel({ nextPayment, locale = 'en' }) {
   }
 
   const durationLabel = discount.end
-    ? t('Ends {offerEndDate}', { offerEndDate: getDateString(discount.end) })
+    ? t('Ends {offerEndDate}', {
+        offerEndDate: getSiteDateString(discount.end, { locale, timezone }),
+      })
     : t('Forever');
 
   const formattedPrice = Intl.NumberFormat(locale || 'en', {

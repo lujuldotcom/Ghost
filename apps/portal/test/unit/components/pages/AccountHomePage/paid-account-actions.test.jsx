@@ -117,7 +117,7 @@ describe('PaidAccountActions', () => {
       // Should show "Free trial - Ends {date}"
       expect(queryByText(/Free Trial/)).toBeInTheDocument();
       expect(queryByText(/Ends/)).toBeInTheDocument();
-      expect(queryByText(/1 Jan 2099/)).toBeInTheDocument();
+      expect(queryByText(/Jan 1, 2099/)).toBeInTheDocument();
     });
 
     test('displays "Free Trial" for trial offers', () => {
@@ -155,7 +155,7 @@ describe('PaidAccountActions', () => {
 
       expect(queryByText(/Free Trial/)).toBeInTheDocument();
       expect(queryByText(/Ends/)).toBeInTheDocument();
-      expect(queryByText(/1 Jan 2099/)).toBeInTheDocument();
+      expect(queryByText(/Jan 1, 2099/)).toBeInTheDocument();
     });
 
     test('displays "Complimentary" with expiry date', () => {
@@ -193,7 +193,7 @@ describe('PaidAccountActions', () => {
       // Should show "Complimentary - Expires {date}"
       expect(queryByText(/Complimentary/)).toBeInTheDocument();
       expect(queryByText(/Expires/)).toBeInTheDocument();
-      expect(queryByText(/1 Jan 2099/)).toBeInTheDocument();
+      expect(queryByText(/Jan 1, 2099/)).toBeInTheDocument();
     });
 
     test('displays "Complimentary" without expiry for permanent comp', () => {
@@ -262,7 +262,7 @@ describe('PaidAccountActions', () => {
 
       expect(queryByText(/Gift subscription/)).toBeInTheDocument();
       expect(queryByText(/Expires/)).toBeInTheDocument();
-      expect(queryByText(/1 Jan 2099/)).toBeInTheDocument();
+      expect(queryByText(/Jan 1, 2099/)).toBeInTheDocument();
     });
 
     test('displays discounted price with "Forever" for forever offers', () => {
@@ -356,7 +356,7 @@ describe('PaidAccountActions', () => {
       // Should show the discounted price with end date
       expect(queryByText(/\$4\.00\/month/)).toBeInTheDocument();
       expect(queryByText(/Ends/)).toBeInTheDocument();
-      expect(queryByText('$4.00/month — Ends 3 May 2099')).toBeInTheDocument();
+      expect(queryByText('$4.00/month — Ends May 3, 2099')).toBeInTheDocument();
     });
 
     test('displays $0.00/month - Ends {date} for free months offers', () => {
@@ -404,7 +404,7 @@ describe('PaidAccountActions', () => {
       expect(queryByText('$5.00/month')).toBeInTheDocument();
       expect(queryByText('$5.00/month')).toHaveClass('gh-portal-account-old-price');
       expect(queryByTestId('offer-label')).toBeInTheDocument();
-      expect(queryByText('$0.00/month — Ends 3 Jan 2099')).toBeInTheDocument();
+      expect(queryByText('$0.00/month — Ends Jan 3, 2099')).toBeInTheDocument();
     });
 
     test('displays discounted price with "Ends {date}" for once offers', () => {
@@ -448,7 +448,7 @@ describe('PaidAccountActions', () => {
       // Should have the offer label
       expect(queryByTestId('offer-label')).toBeInTheDocument();
       // Should show the discounted price with end date from next_payment.discount.end
-      expect(queryByText('$4.00/month — Ends 1 Mar 2099')).toBeInTheDocument();
+      expect(queryByText('$4.00/month — Ends Mar 1, 2099')).toBeInTheDocument();
     });
 
     test('displays fixed amount discount correctly', () => {

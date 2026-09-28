@@ -2,12 +2,12 @@ import AppContext from '../../../../app-context';
 import ActionButton from '../../../common/action-button';
 import Interpolate from '@doist/react-interpolate';
 import { getMemberSubscription } from '../../../../utils/helpers';
-import { getDateString } from '../../../../utils/date-time';
+import { getSiteDateString } from '../../../../utils/date-time';
 import { useContext } from 'react';
 import { t } from '../../../../utils/i18n';
 
 const ContinueSubscriptionButton = () => {
-  const { member, doAction, action, brandColor } = useContext(AppContext);
+  const { member, site, doAction, action, brandColor, locale = 'en' } = useContext(AppContext);
   const subscription = getMemberSubscription({ member });
   if (!subscription) {
     return null;
@@ -20,7 +20,10 @@ const ContinueSubscriptionButton = () => {
   const label = t('Resume subscription');
   const isRunning = ['continueSubscription:running'].includes(action);
   const disabled = isRunning ? true : false;
-  const expiryDate = getDateString(subscription.current_period_end);
+  const expiryDate = getSiteDateString(subscription.current_period_end, {
+    locale,
+    timezone: site?.timezone,
+  });
 
   return (
     <div className="gh-portal-cancelcontinue-container">

@@ -5,7 +5,7 @@ import CloseButton from '../common/close-button';
 import BackButton from '../common/back-button';
 import SignupGiftPromotion from '../common/signup-gift-promotion';
 import { MultipleProductsPlansSection } from '../common/plans-section';
-import { getDateString } from '../../utils/date-time';
+import { getSiteDateString } from '../../utils/date-time';
 import {
   addMonths,
   formatCurrency,
@@ -170,7 +170,10 @@ const PlanConfirmationSection = ({ plan, type, onConfirm }) => {
     'cancelSubscription:running',
   ].includes(action);
   const label = t('Confirm');
-  const planStartDate = getDateString(subscription.current_period_end);
+  const planStartDate = getSiteDateString(subscription.current_period_end, {
+    locale,
+    timezone: site?.timezone,
+  });
   const currentActivePlan = getMemberActivePrice({ member });
   let planStartingMessage = t('Starting {startDate}', { startDate: planStartDate });
   if (currentActivePlan.id !== plan.id) {
@@ -220,7 +223,14 @@ const PlanConfirmationSection = ({ plan, type, onConfirm }) => {
               `If you cancel your subscription now, you will continue to have access until {periodEnd}.`,
             )}
             mapping={{
-              periodEnd: <strong>{getDateString(subscription.current_period_end)}</strong>,
+              periodEnd: (
+                <strong>
+                  {getSiteDateString(subscription.current_period_end, {
+                    locale,
+                    timezone: site?.timezone,
+                  })}
+                </strong>
+              ),
             }}
           />
         </p>
@@ -308,17 +318,20 @@ function getRetentionOfferLabel(offer, amountOff) {
   return t('{amount} off', { amount: amountOff });
 }
 
-function getRetentionOfferMessage(offer, originalPrice, currency, amountOff, subscription) {
+function getRetentionOfferMessage(
+  offer,
+  originalPrice,
+  currency,
+  amountOff,
+  subscription,
+  locale,
+  timezone,
+) {
   if (isFreeMonthsOffer(offer)) {
     const months = offer.duration_in_months;
     const nextPaymentDate = addMonths(subscription.current_period_end, months);
     const nextPaymentDateFormatted = nextPaymentDate
-      ? nextPaymentDate.toLocaleDateString('en-GB', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          timeZone: 'UTC',
-        })
+      ? getSiteDateString(nextPaymentDate, { locale, timezone })
       : null;
 
     if (nextPaymentDateFormatted) {
@@ -374,7 +387,7 @@ function getRetentionOfferMessage(offer, originalPrice, currency, amountOff, sub
 }
 
 const RetentionOfferSection = ({ subscription, offer, onAcceptOffer, onDeclineOffer }) => {
-  const { brandColor, action, locale = 'en' } = useContext(AppContext);
+  const { brandColor, action, site, locale = 'en' } = useContext(AppContext);
   const isAcceptingOffer = action === 'applyOffer:running';
 
   const price = getPriceFromSubscription({ subscription });
@@ -398,7 +411,15 @@ const RetentionOfferSection = ({ subscription, offer, onAcceptOffer, onDeclineOf
     t("We'd hate to see you leave. How about a special offer to stay?");
 
   const offerLabel = getRetentionOfferLabel(offer, amountOff);
-  const offerMessage = getRetentionOfferMessage(offer, originalPrice, '', amountOff, subscription);
+  const offerMessage = getRetentionOfferMessage(
+    offer,
+    originalPrice,
+    '',
+    amountOff,
+    subscription,
+    locale,
+    site?.timezone,
+  );
 
   return (
     <div className="gh-portal-logged-out-form-container gh-portal-offer gh-portal-retention-offer">

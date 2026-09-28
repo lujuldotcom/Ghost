@@ -7,7 +7,7 @@ import copyTextToClipboard from '../../utils/copy-to-clipboard';
 import { getAvailableProducts } from '../../utils/helpers';
 import { getGiftDurationLabel } from '../../utils/gift-redemption-notification';
 import { getGiftPrice } from '../../utils/gift-subscriptions';
-import { getDateString, parseDateValue } from '../../utils/date-time';
+import { getCalendarDateString } from '../../utils/date-time';
 import { t } from '../../utils/i18n';
 import useCardTilt from '../../utils/use-card-tilt';
 import { formatGiftValue } from '../../utils/format-gift-value';
@@ -137,7 +137,7 @@ const CheckIcon = () => (
 );
 
 const GiftSuccessPage = () => {
-  const { site, pageData } = useContext(AppContext);
+  const { site, pageData, locale = 'en' } = useContext(AppContext);
   const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const { cardRef, containerProps: cardTiltProps } = useCardTilt();
@@ -172,7 +172,7 @@ const GiftSuccessPage = () => {
   let titleText = t('Your gift is ready');
   let subtitleText = t("Send the link below to share it with whoever you'd like.");
   if (isStillScheduled) {
-    const formattedDate = getDateString(parseDateValue(deliveryDate));
+    const formattedDate = getCalendarDateString(deliveryDate, { locale });
     titleText = t('Your gift is scheduled');
     subtitleText = t(
       "We'll email it to the recipient on {deliveryDate}. A copy is in your inbox too.",

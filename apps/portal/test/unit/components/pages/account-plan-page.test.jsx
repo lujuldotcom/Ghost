@@ -817,7 +817,7 @@ describe('Account Plan Page', () => {
 
     expect(queryByText('1 month free')).toBeInTheDocument();
     expect(
-      queryByText("Enjoy a free month on us. You won't be charged until 5 Nov 2022."),
+      queryByText("Enjoy a free month on us. You won't be charged until Nov 5, 2022."),
     ).toBeInTheDocument();
   });
 
@@ -865,7 +865,7 @@ describe('Account Plan Page', () => {
 
     expect(queryByText('3 months free')).toBeInTheDocument();
     expect(
-      queryByText("Enjoy 3 free months on us. You won't be charged until 5 Jan 2023."),
+      queryByText("Enjoy 3 free months on us. You won't be charged until Jan 5, 2023."),
     ).toBeInTheDocument();
   });
 

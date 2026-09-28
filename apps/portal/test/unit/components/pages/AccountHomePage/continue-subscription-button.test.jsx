@@ -101,7 +101,7 @@ describe('ContinueSubscriptionButton', () => {
     });
 
     const { queryByText } = setup({ site, member });
-    expect(queryByText(/Apr 2026/)).toBeInTheDocument();
+    expect(queryByText(/Apr 3, 2026/)).toBeInTheDocument();
   });
 
   test('continue button renders inside the banner', () => {

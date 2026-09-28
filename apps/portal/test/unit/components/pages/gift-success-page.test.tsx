@@ -5,7 +5,7 @@ import {
   getSiteData,
 } from '../../../../src/utils/fixtures-generator';
 import { render } from '../../../utils/test-utils';
-import { toDateValue } from '../../../../src/utils/date-time';
+import { getCalendarDateString, toDateValue } from '../../../../src/utils/date-time';
 
 function setup({
   Page,
@@ -14,7 +14,7 @@ function setup({
   duration = 3,
   deliveryDate,
   scheduledAt,
-  locale,
+  locale = 'en',
 }: {
   Page: typeof GiftSuccessPage;
   monthlyPrice: ReturnType<typeof getPriceData> | null;
@@ -40,6 +40,7 @@ function setup({
   return render(<Page />, {
     overrideContext: {
       site: { ...site, locale },
+      locale,
       pageData: {
         token: 'abc123',
         tierId: 'tier_123',
@@ -117,11 +118,7 @@ describe('GiftSuccessPage delivery', () => {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 60);
     const deliveryDate = toDateValue(futureDate);
-    const formattedDate = futureDate.toLocaleDateString('en-GB', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const formattedDate = getCalendarDateString(deliveryDate, { locale: 'en' });
 
     const { getByText, getByTestId } = setup({
       Page: GiftSuccessPage,
@@ -138,6 +135,21 @@ describe('GiftSuccessPage delivery', () => {
       ),
     ).toBeInTheDocument();
     expect(getByTestId('gift-redeem-link')).toHaveTextContent('/gift/abc123');
+  });
+
+  test('formats a scheduled calendar day using the effective Portal locale', () => {
+    const { getByText } = setup({
+      Page: GiftSuccessPage,
+      monthlyPrice: getPriceData({ amount: 500, interval: 'month' }),
+      deliveryMethod: 'email',
+      deliveryDate: '2099-08-03',
+      scheduledAt: Date.now() + 60_000,
+      locale: 'fr',
+    });
+
+    expect(
+      getByText("We'll email it to the recipient on 3 août 2099. A copy is in your inbox too."),
+    ).toBeInTheDocument();
   });
 
   // The schedule is baked into the success URL at checkout-session

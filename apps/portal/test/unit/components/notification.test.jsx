@@ -185,12 +185,14 @@ describe('Notification', () => {
     const site = {
       url: 'https://example.com',
       title: 'Example Site',
+      timezone: 'America/Los_Angeles',
     };
 
     const { getByText } = render(
       <AppContext.Provider
         value={{
           site,
+          locale: 'en',
           member: {
             paid: true,
             subscriptions: [
@@ -198,7 +200,7 @@ describe('Notification', () => {
                 status: 'active',
                 tier: {
                   name: 'Ultra',
-                  expiry_at: '2027-05-29T12:00:00.000Z',
+                  expiry_at: '2027-05-29T00:30:00.000Z',
                 },
               },
             ],
@@ -215,7 +217,7 @@ describe('Notification', () => {
 
     await waitFor(() => {
       expect(
-        getByText('You now have access to Ultra until 29 May 2027. Enjoy!'),
+        getByText('You now have access to Ultra until May 28, 2027. Enjoy!'),
       ).toBeInTheDocument();
     });
   });
