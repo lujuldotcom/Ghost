@@ -115,6 +115,48 @@ describe('Account Plan Page', () => {
     expect(getByTestId('yearly-switch')).toBeInTheDocument();
   });
 
+  test('formats plan card prices using the Portal locale', () => {
+    const products = [
+      getProductData({
+        name: 'Localized',
+        monthlyPrice: getPriceData({ interval: 'month', amount: 750, currency: 'eur' }),
+        yearlyPrice: getPriceData({ interval: 'year', amount: 7500, currency: 'eur' }),
+      }),
+    ];
+    const siteData = getSiteData({
+      products,
+      portalDefaultPlan: 'monthly',
+    });
+
+    const { container } = customSetup({
+      site: siteData,
+      locale: 'fr',
+    });
+
+    const paidCard = container.querySelector('[data-test-tier="paid"]');
+    expect(paidCard).not.toBeNull();
+
+    const priceContainer = paidCard.querySelector('.gh-portal-product-price');
+    const amount = priceContainer.querySelector('[data-testid="product-amount"]');
+    const currencySign = priceContainer.querySelector('.currency-sign');
+    const alternativePrice = paidCard.querySelector('.gh-portal-product-alternative-price');
+
+    expect(amount).toHaveTextContent('7,50');
+    expect(currencySign).toHaveTextContent('€');
+    expect(currencySign.previousElementSibling).toBe(amount);
+    expect(alternativePrice.textContent.replace(/\s+/gu, ' ')).toContain('75 €');
+
+    const renderedPrices = container.querySelectorAll('.gh-portal-product-price');
+    renderedPrices.forEach((renderedPrice) => {
+      const renderedAmount = renderedPrice.querySelector('.amount');
+      const renderedCurrency = renderedPrice.querySelector('.currency-sign');
+
+      if (renderedAmount && renderedCurrency) {
+        expect(renderedCurrency.previousElementSibling).toBe(renderedAmount);
+      }
+    });
+  });
+
   test('can choose plan and continue', async () => {
     const siteData = getSiteData({
       products: getProductsData({ numOfProducts: 1 }),
@@ -522,6 +564,61 @@ describe('Account Plan Page', () => {
 
     expect(queryByText('20% off')).toBeInTheDocument();
     expect(queryByText('Save 20% on your next billing cycle. Then $100/year.')).toBeInTheDocument();
+  });
+
+  test('formats retention prices using the Portal locale', async () => {
+    const paidProduct = getProductData({
+      name: 'Basic',
+      monthlyPrice: getPriceData({ interval: 'month', amount: 599, currency: 'eur' }),
+      yearlyPrice: getPriceData({ interval: 'year', amount: 10000, currency: 'eur' }),
+    });
+    const products = [paidProduct, getProductData({ type: 'free' })];
+    const site = getSiteData({
+      products,
+      portalProducts: [paidProduct.id],
+    });
+    const member = getMemberData({
+      paid: true,
+      subscriptions: [
+        getSubscriptionData({
+          status: 'active',
+          interval: 'month',
+          amount: paidProduct.monthlyPrice.amount,
+          currency: 'EUR',
+          priceId: paidProduct.monthlyPrice.id,
+        }),
+      ],
+    });
+
+    const retentionOffer = {
+      ...getOfferData({
+        type: 'percent',
+        amount: 20,
+        cadence: 'month',
+        duration: 'once',
+        tierId: paidProduct.id,
+        tierName: paidProduct.name,
+      }),
+      redemption_type: 'retention',
+    };
+
+    const { container, queryByRole, queryByText } = customSetup({
+      site,
+      member,
+      offers: [retentionOffer],
+      locale: 'fr',
+    });
+
+    fireEvent.click(queryByRole('button', { name: 'Cancel subscription' }));
+
+    const priceContainer = container.querySelector('.gh-portal-product-price');
+    const discountedAmount = priceContainer.querySelector('.amount');
+    const currencySign = priceContainer.querySelector('.currency-sign');
+
+    expect(discountedAmount).toHaveTextContent('4,79');
+    expect(currencySign).toHaveTextContent('€');
+    expect(priceContainer.lastElementChild).toBe(currencySign);
+    expect(queryByText(/Then 5,99.*€\/month\./)).toBeInTheDocument();
   });
 
   test('renders rounded cents for percent retention offers', async () => {

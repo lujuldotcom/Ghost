@@ -25,6 +25,7 @@ const customRender = (ui, { options = {}, overrideContext = {} } = {}) => {
     action: 'init:success',
     brandColor: testSite.accent_color,
     page: 'signup',
+    locale: 'en',
     doAction: mockDoActionFn,
     t,
     ...overrideContext,
