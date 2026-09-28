@@ -6,7 +6,6 @@ import { getFrameStyles } from './frame.styles';
 import { getFontFaceStyles } from './global.styles';
 import { getActivePage, getPages } from '../pages';
 import PopupNotification from './common/popup-notification';
-import PoweredBy from './common/powered-by';
 import {
   getSiteProducts,
   hasAvailablePrices,
@@ -165,8 +164,6 @@ export class PopupContent extends React.Component {
       ...Styles.page[page],
     };
     const popupWidthStyle = '';
-    let popupSize = 'regular';
-
     let cookieBannerText = '';
     let pageClass = page;
     switch (page) {
@@ -194,13 +191,11 @@ export class PopupContent extends React.Component {
     if (noOfProducts > 1 && !isInviteOnly({ site }) && hasAvailablePrices({ site, pageQuery })) {
       if (page === 'signup') {
         pageClass += ' full-size';
-        popupSize = 'full';
       }
     }
 
     if (page === 'gift' || page === 'giftSuccess' || page === 'giftRedemption') {
       pageClass += ' full-size';
-      popupSize = 'full';
     }
 
     // Magic link page reached via gift redemption: render in the same
@@ -209,14 +204,12 @@ export class PopupContent extends React.Component {
     // existing full-size CSS rules apply.
     if (page === 'magiclink' && lastPage === 'gift') {
       pageClass += ' full-size giftRedemption';
-      popupSize = 'full';
     }
 
     const freeProduct = hasFreeProductPrice({ site });
     if ((freeProduct && noOfProducts > 2) || (!freeProduct && noOfProducts > 1)) {
       if (page === 'accountPlan') {
         pageClass += ' full-size';
-        popupSize = 'full';
       }
     }
 
@@ -239,11 +232,6 @@ export class PopupContent extends React.Component {
     }
 
     const containerClassName = `${className} ${popupWidthStyle} ${pageClass}`;
-    const isGiftLayout =
-      page === 'gift' ||
-      page === 'giftSuccess' ||
-      page === 'giftRedemption' ||
-      (page === 'magiclink' && lastPage === 'gift');
     this.sendPortalPreviewReadyEvent();
     return (
       <>
@@ -260,28 +248,8 @@ export class PopupContent extends React.Component {
           >
             <CookieDisabledBanner message={cookieBannerText} />
             {this.renderActivePage()}
-            {popupSize === 'full' && !isGiftLayout ? (
-              <div
-                className={
-                  'gh-portal-powered inside ' + (hasMode(['preview']) ? 'hidden ' : '') + pageClass
-                }
-              >
-                <PoweredBy />
-              </div>
-            ) : (
-              ''
-            )}
           </div>
         </div>
-        {page !== 'share' && !isGiftLayout && (
-          <div
-            className={
-              'gh-portal-powered outside ' + (hasMode(['preview']) ? 'hidden ' : '') + pageClass
-            }
-          >
-            <PoweredBy />
-          </div>
-        )}
       </>
     );
   }

@@ -163,6 +163,8 @@ describe('Portal Data links:', () => {
       expect(popupFrame).toBeInTheDocument();
       const signupTitle = within(popupFrame.contentDocument).queryByText(/already a member/i);
       expect(signupTitle).toBeInTheDocument();
+      const poweredBy = within(popupFrame.contentDocument).queryByText(/Powered by Ghost/i);
+      expect(poweredBy).not.toBeInTheDocument();
     });
   });
 

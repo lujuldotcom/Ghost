@@ -462,66 +462,10 @@ html[dir="rtl"] .gh-portal-btn-site-title-back span {
     }
 }
 
-.gh-portal-powered {
-    position: absolute;
-    bottom: 24px;
-    left: 24px;
-    z-index: 9999;
-}
-html[dir="rtl"] .gh-portal-powered {
-    left: unset;
-    right: 24px;
-}
 
-.gh-portal-powered a {
-    border: none;
-    display: flex;
-    align-items: center;
-    line-height: 0;
-    border-radius: 4px;
-    background: #ffffff;
-    padding: 6px 8px 6px 7px;
-    color: #303336;
-    font-size: 1.25rem;
-    letter-spacing: -0.2px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.5s ease-in-out;
-    width: 146px;
-    height: 28px;
-    line-height: 28px;
-}
-html[dir="rtl"] .gh-portal-powered a {
-    padding: 6px 7px 6px 8px;
-}
 
-.gh-portal-powered a:hover {
-    color: #15171A;
-}
 
-@keyframes powered-fade-in {
-    0% {
-        transform: scale(0.98);
-        opacity: 0;
-    }
-    75% {
-        opacity: 1.0;
-    }
-    100%{
-        transform: scale(1);
-    }
-}
 
-.gh-portal-powered a svg {
-    height: 16px;
-    width: 16px;
-    margin: 0;
-    margin-inline-end: 6px;
-}
-
-.gh-portal-powered.outside.full-size {
-    display: none;
-}
 
 /* Sets the main content area of the popup scrollable.
 /* 12vw is the sum horizontal padding of the popup container
@@ -972,19 +916,6 @@ const MobileStyles = `
     }
 }
 
-@media (max-width: 960px) {
-    .gh-portal-powered {
-        display: flex;
-        position: relative;
-        bottom: unset;
-        left: unset;
-        background: var(--white);
-        justify-content: center;
-        width: 100%;
-        padding-top: 32px;
-    }
-}
-
 @media (min-width: 520px) {
     .gh-portal-popup-wrapper.full-size .gh-portal-popup-container.preview {
         box-shadow:
@@ -1097,10 +1028,6 @@ const MobileStyles = `
         padding-bottom: 0;
     }
 
-    .gh-portal-powered {
-        padding-top: 12px;
-        padding-bottom: 24px;
-    }
 }
 
 @media (max-width: 390px) {
@@ -1195,24 +1122,6 @@ const MultipleProductsGlobalStyles = `
     position: unset;
 }
 
-.gh-portal-popup-wrapper.multiple-products .gh-portal-powered {
-    position: relative;
-    display: flex;
-    flex: 1;
-    align-items: flex-end;
-    justify-content: flex-start;
-    bottom: unset;
-    left: unset;
-    width: 100%;
-    z-index: 10000;
-    padding-bottom: 32px;
-}
-
-@media (max-width: 670px) {
-    .gh-portal-popup-wrapper.multiple-products .gh-portal-powered {
-        justify-content: center;
-    }
-}
 
 .gh-portal-popup-wrapper.multiple-products .gh-portal-content {
     position: unset;

@@ -151,10 +151,6 @@ export const FeedbackPageStyles = `
             margin-top: 28px;
         }
 
-        .gh-portal-powered.outside.feedback {
-            display: none;
-        }
-
         @keyframes mobile-tray-from-bottom {
             0% {
                 opacity: 0;
