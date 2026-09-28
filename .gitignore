@@ -179,6 +179,9 @@ Caddyfile
 /apps/announcement-bar/.vitest-attachments
 /apps/announcement-bar/test/acceptance/__screenshots__
 
+# lujul public app vendor
+/apps/vendor/umd
+
 # Build files
 /apps/*/build
 /ghost/*/build

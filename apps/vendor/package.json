@@ -1,0 +1,16 @@
+{
+  "name": "@lujul/public-app-vendor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "catalog:react17",
+    "react-dom": "catalog:react17"
+  },
+  "devDependencies": {
+    "vite": "catalog:"
+  }
+}
