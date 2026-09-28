@@ -1,4 +1,5 @@
 /* eslint-env node */
+import { resolve } from 'path';
 import pkg from './package.json';
 import { publicAppViteConfig } from '@internal/cfg-vite-public-app';
 
@@ -11,6 +12,12 @@ export default publicAppViteConfig({
   overrides: {
     resolve: {
       dedupe: ['@tryghost/debug'],
+      alias: {
+        '@tryghost/i18n/registry/search': resolve(
+          import.meta.dirname,
+          '../../packages/i18n/src/registry-lujul/search.ts',
+        ),
+      },
     },
     build: {
       rollupOptions: {

@@ -30,6 +30,10 @@ export default publicAppViteConfig({
       alias: {
         react: resolve(import.meta.dirname, 'node_modules/react'),
         'react-dom': resolve(import.meta.dirname, 'node_modules/react-dom'),
+        '@tryghost/i18n/registry/comments': resolve(
+          import.meta.dirname,
+          '../../packages/i18n/src/registry-lujul/comments.ts',
+        ),
       },
     },
     test: {
