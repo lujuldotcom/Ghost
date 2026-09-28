@@ -3,6 +3,7 @@ import Frame from './frame';
 import { hasMode } from '../utils/check-mode';
 import AppContext from '../app-context';
 import { getFrameStyles } from './frame.styles';
+import { getFontFaceStyles } from './global.styles';
 import { getActivePage, getPages } from '../pages';
 import PopupNotification from './common/popup-notification';
 import PoweredBy from './common/powered-by';
@@ -320,9 +321,13 @@ export default class PopupModal extends React.Component {
   }
 
   renderFrameStyles() {
-    const { site, brandColor } = this.context;
+    const { site, brandColor, outfitRegularUrl, outfitBoldUrl } = this.context;
     const FrameStyle = getFrameStyles({ site });
-    const styles = brandColor ? `:root { --brandcolor: ${brandColor} }` + FrameStyle : FrameStyle;
+    const fontStyles = getFontFaceStyles({ outfitRegularUrl, outfitBoldUrl });
+    const frameStyles = brandColor
+      ? `:root { --brandcolor: ${brandColor} }` + FrameStyle
+      : FrameStyle;
+    const styles = fontStyles + frameStyles;
     return (
       <>
         <style dangerouslySetInnerHTML={{ __html: styles }} />

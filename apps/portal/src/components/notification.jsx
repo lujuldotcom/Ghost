@@ -3,6 +3,7 @@ import Interpolate from '@doist/react-interpolate';
 import Frame from './frame';
 import AppContext from '../app-context';
 import NotificationStyle from './notification.styles';
+import { getFontFaceStyles } from './global.styles';
 import CloseIcon from '../images/icons/close.svg?react';
 import CheckmarkIcon from '../images/icons/checkmark-fill.svg?react';
 import WarningIcon from '../images/icons/warning-fill.svg?react';
@@ -303,10 +304,12 @@ export default class Notification extends React.Component {
   }
 
   renderFrameStyles() {
-    const { brandColor } = this.context;
-    const styles = brandColor
+    const { brandColor, outfitRegularUrl, outfitBoldUrl } = this.context;
+    const fontStyles = getFontFaceStyles({ outfitRegularUrl, outfitBoldUrl });
+    const frameStyles = brandColor
       ? `:root { --brandcolor: ${brandColor} }` + NotificationStyle
       : NotificationStyle;
+    const styles = fontStyles + frameStyles;
     return <style dangerouslySetInnerHTML={{ __html: styles }} />;
   }
 

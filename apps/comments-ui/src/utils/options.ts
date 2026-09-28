@@ -22,9 +22,13 @@ export function useOptions(scriptTag: HTMLElement) {
     const showCount = dataset.count === 'true';
     const publication = dataset.publication ?? ''; // TODO: replace with dynamic data from script
     const locale = dataset.locale ?? 'en';
+    const outfitRegularUrl = dataset.outfitRegular;
+    const outfitBoldUrl = dataset.outfitBold;
 
     const options = {
       locale,
+      outfitRegularUrl,
+      outfitBoldUrl,
       siteUrl,
       apiKey,
       apiUrl,

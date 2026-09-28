@@ -189,6 +189,8 @@ export default class App extends React.Component {
           showPopup: this.state.showPopup,
           adminUrl: this.props.adminUrl,
           stylesUrl: this.props.stylesUrl,
+          outfitRegularUrl: this.props.outfitRegularUrl,
+          outfitBoldUrl: this.props.outfitBoldUrl,
           searchIndex: this.state.searchIndex,
           indexComplete: this.state.indexComplete,
           searchValue: this.state.searchValue,

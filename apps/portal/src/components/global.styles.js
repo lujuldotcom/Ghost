@@ -1,3 +1,30 @@
+export function getFontFaceStyles({ outfitRegularUrl, outfitBoldUrl }) {
+  if (!outfitRegularUrl || !outfitBoldUrl) {
+    return '';
+  }
+
+  const regularUrl = JSON.stringify(outfitRegularUrl);
+  const boldUrl = JSON.stringify(outfitBoldUrl);
+
+  return `
+    @font-face {
+        font-display: swap;
+        font-family: "Outfit";
+        font-style: normal;
+        font-weight: 400;
+        src: url(${regularUrl}) format("woff2");
+    }
+
+    @font-face {
+        font-display: swap;
+        font-family: "Outfit";
+        font-style: normal;
+        font-weight: 700;
+        src: url(${boldUrl}) format("woff2");
+    }
+  `;
+}
+
 export const GlobalStyles = `
     /* Colors
     /* ----------------------------------------------------- */
@@ -38,7 +65,7 @@ export const GlobalStyles = `
 
     body {
         margin: 0px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-family: Outfit, system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
         font-size: 1.6rem;
         height: 100%;
         line-height: 1.6em;
@@ -51,7 +78,7 @@ export const GlobalStyles = `
 
     button,
     button span {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-family: Outfit, system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
     }
 
     *, ::after, ::before {
@@ -121,7 +148,7 @@ export const GlobalStyles = `
 
     input,
     textarea {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-family: Outfit, system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
         font-size: 1.5rem;
     }
 

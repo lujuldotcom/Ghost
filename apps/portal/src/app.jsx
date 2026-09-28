@@ -1429,6 +1429,8 @@ export default class App extends React.Component {
     });
     return {
       api: this.GhostApi,
+      outfitRegularUrl: this.props.outfitRegularUrl,
+      outfitBoldUrl: this.props.outfitBoldUrl,
       site,
       offers,
       action,

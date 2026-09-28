@@ -1,6 +1,7 @@
 import IFrame from './iframe';
 import React, { useCallback, useState } from 'react';
 import styles from '../styles/iframe.css?inline';
+import { useAppContext } from '../app-context';
 
 type FrameProps = {
   children: React.ReactNode;
@@ -12,6 +13,39 @@ type TailwindFrameProps = FrameProps & {
   onResize?: (iframeRoot: HTMLElement) => void;
 };
 
+function getFontFaceStyles({
+  outfitRegularUrl,
+  outfitBoldUrl,
+}: {
+  outfitRegularUrl: string | undefined;
+  outfitBoldUrl: string | undefined;
+}) {
+  if (!outfitRegularUrl || !outfitBoldUrl) {
+    return '';
+  }
+
+  const regularUrl = JSON.stringify(outfitRegularUrl);
+  const boldUrl = JSON.stringify(outfitBoldUrl);
+
+  return `
+    @font-face {
+      font-display: swap;
+      font-family: "Outfit";
+      font-style: normal;
+      font-weight: 400;
+      src: url(${regularUrl}) format("woff2");
+    }
+
+    @font-face {
+      font-display: swap;
+      font-family: "Outfit";
+      font-style: normal;
+      font-weight: 700;
+      src: url(${boldUrl}) format("woff2");
+    }
+  `;
+}
+
 /**
  * Loads all the CSS styles inside an iFrame. Only shows the visible content as soon as the CSS file with the tailwind classes has loaded.
  */
@@ -22,9 +56,12 @@ const TailwindFrame = React.forwardRef<
   { children, onResize, style, title },
   ref: React.ForwardedRef<HTMLIFrameElement>,
 ) {
+  const { outfitRegularUrl, outfitBoldUrl } = useAppContext();
+  const fontStyles = getFontFaceStyles({ outfitRegularUrl, outfitBoldUrl });
+
   const head = (
     <>
-      <style dangerouslySetInnerHTML={{ __html: styles }} />
+      <style dangerouslySetInnerHTML={{ __html: fontStyles + styles }} />
       <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0" name="viewport" />
     </>
   );

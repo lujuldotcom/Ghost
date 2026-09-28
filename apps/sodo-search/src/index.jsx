@@ -23,7 +23,9 @@ function getSiteData() {
     const apiKey = scriptTag.dataset.key;
     const stylesUrl = scriptTag.dataset.styles;
     const locale = scriptTag.dataset.locale || 'en';
-    return { adminUrl, apiKey, stylesUrl, locale };
+    const outfitRegularUrl = scriptTag.dataset.outfitRegular;
+    const outfitBoldUrl = scriptTag.dataset.outfitBold;
+    return { adminUrl, apiKey, stylesUrl, locale, outfitRegularUrl, outfitBoldUrl };
   }
   return {};
 }
@@ -33,12 +35,19 @@ function setup() {
 }
 
 function init() {
-  const { adminUrl, apiKey, stylesUrl, locale } = getSiteData();
+  const { adminUrl, apiKey, stylesUrl, locale, outfitRegularUrl, outfitBoldUrl } = getSiteData();
   const adminBaseUrl = (adminUrl || window.location.origin)?.replace(/\/+$/, '');
   setup();
   ReactDOM.render(
     <React.StrictMode>
-      <App adminUrl={adminBaseUrl} apiKey={apiKey} stylesUrl={stylesUrl} locale={locale} />
+      <App
+        adminUrl={adminBaseUrl}
+        apiKey={apiKey}
+        stylesUrl={stylesUrl}
+        locale={locale}
+        outfitRegularUrl={outfitRegularUrl}
+        outfitBoldUrl={outfitBoldUrl}
+      />
     </React.StrictMode>,
     document.getElementById(ROOT_DIV_ID),
   );

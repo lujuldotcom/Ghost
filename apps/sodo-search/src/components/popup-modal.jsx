@@ -598,6 +598,33 @@ function Search() {
   );
 }
 
+function getFontFaceStyles({ outfitRegularUrl, outfitBoldUrl }) {
+  if (!outfitRegularUrl || !outfitBoldUrl) {
+    return '';
+  }
+
+  const regularUrl = JSON.stringify(outfitRegularUrl);
+  const boldUrl = JSON.stringify(outfitBoldUrl);
+
+  return `
+    @font-face {
+      font-display: swap;
+      font-family: "Outfit";
+      font-style: normal;
+      font-weight: 400;
+      src: url(${regularUrl}) format("woff2");
+    }
+
+    @font-face {
+      font-display: swap;
+      font-family: "Outfit";
+      font-style: normal;
+      font-weight: 700;
+      src: url(${boldUrl}) format("woff2");
+    }
+  `;
+}
+
 export default class PopupModal extends React.Component {
   static contextType = AppContext;
 
@@ -622,7 +649,13 @@ export default class PopupModal extends React.Component {
   }
 
   renderFrameStyles() {
-    const styles = `
+    const fontStyles = getFontFaceStyles({
+      outfitRegularUrl: this.context.outfitRegularUrl,
+      outfitBoldUrl: this.context.outfitBoldUrl,
+    });
+    const styles =
+      fontStyles +
+      `
             :root {
                 --brandcolor: ${this.context.brandColor || ''}
             }
