@@ -684,18 +684,63 @@ export function Search() {
   );
 }
 
-function FrameHead({ stylesUrl, onStylesLoad }: { stylesUrl?: string; onStylesLoad: () => void }) {
+function getFontFaceStyles({
+  outfitRegularUrl,
+  outfitBoldUrl,
+}: {
+  outfitRegularUrl?: string;
+  outfitBoldUrl?: string;
+}) {
+  if (!outfitRegularUrl || !outfitBoldUrl) {
+    return '';
+  }
+
+  const regularUrl = JSON.stringify(outfitRegularUrl);
+  const boldUrl = JSON.stringify(outfitBoldUrl);
+
+  return `
+    @font-face {
+      font-display: swap;
+      font-family: "Outfit";
+      font-style: normal;
+      font-weight: 400;
+      src: url(${regularUrl}) format("woff2");
+    }
+
+    @font-face {
+      font-display: swap;
+      font-family: "Outfit";
+      font-style: normal;
+      font-weight: 700;
+      src: url(${boldUrl}) format("woff2");
+    }
+  `;
+}
+
+function FrameHead({
+  stylesUrl,
+  outfitRegularUrl,
+  outfitBoldUrl,
+  onStylesLoad,
+}: {
+  stylesUrl?: string;
+  outfitRegularUrl?: string;
+  outfitBoldUrl?: string;
+  onStylesLoad: () => void;
+}) {
+  const styles = getFontFaceStyles({ outfitRegularUrl, outfitBoldUrl }) + FRAME_STYLES;
+
   return (
     <>
       {stylesUrl && <link href={stylesUrl} rel="stylesheet" onLoad={onStylesLoad} />}
-      <style dangerouslySetInnerHTML={{ __html: FRAME_STYLES }} />
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport" />
     </>
   );
 }
 
 export default function PopupModal() {
-  const { closePopup, dir, stylesUrl, t } = useAppContext();
+  const { closePopup, dir, stylesUrl, outfitRegularUrl, outfitBoldUrl, t } = useAppContext();
   // .ghost-display hides the dialog until its stylesheet loads, and a hidden input can't
   // take the opening focus
   const [stylesLoaded, setStylesLoaded] = useState(!stylesUrl);
@@ -704,7 +749,14 @@ export default function PopupModal() {
     <div className="gh-root-frame" style={MODAL_CONTAINER_STYLE}>
       <Frame
         dir={dir}
-        head={<FrameHead stylesUrl={stylesUrl} onStylesLoad={() => setStylesLoaded(true)} />}
+        head={
+          <FrameHead
+            outfitBoldUrl={outfitBoldUrl}
+            outfitRegularUrl={outfitRegularUrl}
+            stylesUrl={stylesUrl}
+            onStylesLoad={() => setStylesLoaded(true)}
+          />
+        }
         style={FRAME_STYLE}
         title={t('Search posts, tags and authors')}
       >

@@ -13,6 +13,8 @@ export type AppContextType = {
   closePopup: () => void;
   inputRef: RefObject<HTMLInputElement>;
   stylesUrl?: string;
+  outfitRegularUrl?: string;
+  outfitBoldUrl?: string;
   t: TranslationFunction;
   dir: 'ltr' | 'rtl';
 };

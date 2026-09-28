@@ -59,6 +59,8 @@ export type LabsContextType = {
 
 export type CommentsOptions = {
   locale: string;
+  outfitRegularUrl: string | undefined;
+  outfitBoldUrl: string | undefined;
   siteUrl: string;
   apiKey: string | undefined;
   apiUrl: string | undefined;

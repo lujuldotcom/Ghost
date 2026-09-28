@@ -9,6 +9,8 @@ type AppProps = {
   apiKey?: string;
   stylesUrl?: string;
   locale?: string;
+  outfitRegularUrl?: string;
+  outfitBoldUrl?: string;
 };
 
 // Used for adding trailing margin to prevent layout shift when popup appears
@@ -40,7 +42,14 @@ function isSearchUrl() {
   return path === '/search' || path === '/search/';
 }
 
-export default function App({ adminUrl, apiKey, stylesUrl, locale }: AppProps) {
+export default function App({
+  adminUrl,
+  apiKey,
+  stylesUrl,
+  locale,
+  outfitRegularUrl,
+  outfitBoldUrl,
+}: AppProps) {
   const [{ t, dir, searchIndex }] = useState(() => {
     const i18n = i18nLib(locale || 'en', 'search');
     const i18nDir = i18n.dir() || 'ltr';
@@ -198,6 +207,8 @@ export default function App({ adminUrl, apiKey, stylesUrl, locale }: AppProps) {
         closePopup,
         inputRef,
         stylesUrl,
+        outfitRegularUrl,
+        outfitBoldUrl,
         t,
         dir,
       }}

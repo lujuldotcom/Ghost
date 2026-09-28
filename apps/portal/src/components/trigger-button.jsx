@@ -9,6 +9,7 @@ import ButtonIcon3 from '../images/icons/button-icon-3.svg?react';
 import ButtonIcon4 from '../images/icons/button-icon-4.svg?react';
 import ButtonIcon5 from '../images/icons/button-icon-5.svg?react';
 import TriggerButtonStyle from './trigger-button.styles';
+import { getFontFaceStyles } from './global.styles';
 import { hasAvailablePrices, isInviteOnly, isSigninAllowed } from '../utils/helpers';
 import { hasMode } from '../utils/check-mode';
 
@@ -254,10 +255,12 @@ export default class TriggerButton extends React.Component {
   }
 
   renderFrameStyles() {
-    const { brandColor } = this.context;
-    const styles = brandColor
+    const { brandColor, outfitRegularUrl, outfitBoldUrl } = this.context;
+    const fontStyles = getFontFaceStyles({ outfitRegularUrl, outfitBoldUrl });
+    const frameStyles = brandColor
       ? `:root { --brandcolor: ${brandColor} }` + TriggerButtonStyle
       : TriggerButtonStyle;
+    const styles = fontStyles + frameStyles;
     return <style dangerouslySetInnerHTML={{ __html: styles }} />;
   }
 
