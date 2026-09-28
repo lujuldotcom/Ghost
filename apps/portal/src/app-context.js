@@ -14,6 +14,7 @@ const AppContext = React.createContext({
     return { action, data };
   },
   dir: 'ltr',
+  locale: 'en',
 });
 
 export default AppContext;

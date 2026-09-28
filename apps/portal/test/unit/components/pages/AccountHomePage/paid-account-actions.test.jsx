@@ -56,6 +56,33 @@ describe('PaidAccountActions', () => {
       expect(queryByTestId('offer-label')).not.toBeInTheDocument();
     });
 
+    test('formats subscription prices using the Portal locale', () => {
+      const products = getProductsData({ numOfProducts: 1 });
+      const site = getSiteData({ products, portalProducts: products.map((p) => p.id) });
+      const member = getMemberData({
+        paid: true,
+        subscriptions: [
+          getSubscriptionData({
+            status: 'active',
+            amount: 500,
+            currency: 'EUR',
+            interval: 'month',
+            offer: null,
+          }),
+        ],
+      });
+
+      const { queryByText } = setup({ site, member, locale: 'fr' });
+      const formattedPrice = Intl.NumberFormat('fr', {
+        currency: 'EUR',
+        style: 'currency',
+      })
+        .format(5)
+        .replace(/\s+/gu, ' ');
+
+      expect(queryByText(`${formattedPrice}/month`)).toBeInTheDocument();
+    });
+
     test('displays "Free Trial" for trial subscriptions', () => {
       const products = getProductsData({ numOfProducts: 1 });
       const site = getSiteData({ products, portalProducts: products.map((p) => p.id) });

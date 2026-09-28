@@ -19,7 +19,7 @@ import { useContext } from 'react';
 import { t } from '../../../../utils/i18n';
 
 const PaidAccountActions = () => {
-  const { member, site, doAction } = useContext(AppContext);
+  const { member, site, doAction, locale = 'en' } = useContext(AppContext);
 
   const onManageBilling = () => {
     const subscription = getMemberSubscription({ member });
@@ -41,7 +41,7 @@ const PaidAccountActions = () => {
     let label = '';
     if (price) {
       const { amount = 0, currency, interval } = price;
-      label = `${Intl.NumberFormat('en', { currency, style: 'currency' }).format(amount / 100)}/${t(interval)}`;
+      label = `${Intl.NumberFormat(locale || 'en', { currency, style: 'currency' }).format(amount / 100)}/${t(interval)}`;
     }
 
     const subscriptionExpiry = getSubscriptionExpiry({ member });
@@ -80,7 +80,7 @@ const PaidAccountActions = () => {
       );
     }
 
-    const offerLabelStr = getOfferLabel({ nextPayment });
+    const offerLabelStr = getOfferLabel({ nextPayment, locale });
 
     if (offerLabelStr) {
       oldPriceClassName = 'gh-portal-account-old-price';
@@ -283,7 +283,7 @@ function FreeTrialLabel({ subscription }) {
  *
  * @returns {string}
  */
-function getOfferLabel({ nextPayment }) {
+function getOfferLabel({ nextPayment, locale = 'en' }) {
   if (!nextPayment) {
     return '';
   }
@@ -299,7 +299,7 @@ function getOfferLabel({ nextPayment }) {
     ? t('Ends {offerEndDate}', { offerEndDate: getDateString(discount.end) })
     : t('Forever');
 
-  const formattedPrice = Intl.NumberFormat('en', {
+  const formattedPrice = Intl.NumberFormat(locale || 'en', {
     currency: nextPayment.currency,
     style: 'currency',
   }).format(nextPayment.amount / 100);

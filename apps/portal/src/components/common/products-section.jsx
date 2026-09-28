@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import LoaderIcon from '../../images/icons/loader.svg?react';
 import CheckmarkIcon from '../../images/icons/checkmark.svg?react';
 import {
-  getCurrencySymbol,
+  getCurrencyDisplay,
   getPriceString,
   getStripeAmount,
   getMemberActivePrice,
@@ -12,7 +12,7 @@ import {
   getFreeProduct,
   getFreeProductBenefits,
   getSupportAddress,
-  formatNumber,
+  formatPrice,
   isCookiesDisabled,
   hasOnlyFreeProduct,
   isMemberActivePrice,
@@ -585,13 +585,13 @@ function ProductBenefitsContainer({ product, hide = false }) {
 }
 
 function ProductCardAlternatePrice({ price }) {
-  const { site } = useContext(AppContext);
+  const { site, locale = 'en' } = useContext(AppContext);
   const { portal_plans: portalPlans } = site;
   if (!portalPlans.includes('monthly') || !portalPlans.includes('yearly')) {
     return <div className="gh-portal-product-alternative-price"></div>;
   }
 
-  return <div className="gh-portal-product-alternative-price">{getPriceString(price)}</div>;
+  return <div className="gh-portal-product-alternative-price">{getPriceString(price, locale)}</div>;
 }
 
 function ProductCardTrialDays({ trialDays, discount, selectedInterval }) {
@@ -620,7 +620,7 @@ function ProductCardTrialDays({ trialDays, discount, selectedInterval }) {
 
 function ProductCardPrice({ product }) {
   const { selectedInterval } = useContext(ProductsContext);
-  const { site } = useContext(AppContext);
+  const { site, locale = 'en' } = useContext(AppContext);
   const monthlyPrice = product.monthlyPrice;
   const yearlyPrice = product.yearlyPrice;
   const trialDays = product.trial_days;
@@ -632,22 +632,40 @@ function ProductCardPrice({ product }) {
   }
 
   const yearlyDiscount = calculateDiscount(product.monthlyPrice.amount, product.yearlyPrice.amount);
-  const currencySymbol = getCurrencySymbol(activePrice.currency);
+  const currencyDisplay = getCurrencyDisplay(activePrice.currency, locale);
+  const formattedAmount = formatPrice(getStripeAmount(activePrice.amount), locale);
+  const currencyClass =
+    currencyDisplay.position === 'before' &&
+    currencyDisplay.symbol.length > 1 &&
+    !currencyDisplay.separator
+      ? ' long'
+      : '';
+
+  const currencySign = (
+    <span className={'currency-sign' + currencyClass}>
+      {currencyDisplay.position === 'after' ? currencyDisplay.separator : ''}
+      {currencyDisplay.symbol}
+      {currencyDisplay.position === 'before' ? currencyDisplay.separator : ''}
+    </span>
+  );
+
+  const price = (
+    <div className="gh-portal-product-price">
+      {currencyDisplay.position === 'before' && currencySign}
+      <span className="amount" data-testid="product-amount">
+        {formattedAmount}
+      </span>
+      {currencyDisplay.position === 'after' && currencySign}
+      <span className="billing-period">/{interval}</span>
+    </div>
+  );
 
   if (hasFreeTrialTier({ site })) {
     return (
       <>
         <div className="gh-portal-product-card-pricecontainer">
           <div className="gh-portal-product-card-price-trial">
-            <div className="gh-portal-product-price">
-              <span className={'currency-sign' + (currencySymbol.length > 1 ? ' long' : '')}>
-                {currencySymbol}
-              </span>
-              <span className="amount" data-testid="product-amount">
-                {formatNumber(getStripeAmount(activePrice.amount))}
-              </span>
-              <span className="billing-period">/{interval}</span>
-            </div>
+            {price}
             <ProductCardTrialDays
               trialDays={trialDays}
               discount={yearlyDiscount}
@@ -661,7 +679,6 @@ function ProductCardPrice({ product }) {
           )}
           <ProductCardAlternatePrice price={alternatePrice} />
         </div>
-        {/* <span className="after-trial-amount">Then {currencySymbol}{formatNumber(getStripeAmount(activePrice.amount))}/{activePrice.interval}</span> */}
       </>
     );
   }
@@ -669,15 +686,7 @@ function ProductCardPrice({ product }) {
   return (
     <div className="gh-portal-product-card-pricecontainer">
       <div className="gh-portal-product-card-price-trial">
-        <div className="gh-portal-product-price">
-          <span className={'currency-sign' + (currencySymbol.length > 1 ? ' long' : '')}>
-            {currencySymbol}
-          </span>
-          <span className="amount" data-testid="product-amount">
-            {formatNumber(getStripeAmount(activePrice.amount))}
-          </span>
-          <span className="billing-period">/{interval}</span>
-        </div>
+        {price}
         {selectedInterval === 'year' ? <YearlyDiscount discount={yearlyDiscount} /> : ''}
       </div>
       <ProductCardAlternatePrice price={alternatePrice} />
@@ -686,7 +695,7 @@ function ProductCardPrice({ product }) {
 }
 
 function FreeProductCard({ products, handleChooseSignup, error }) {
-  const { site, action } = useContext(AppContext);
+  const { site, action, locale = 'en' } = useContext(AppContext);
   const { selectedProduct, setSelectedProduct } = useContext(ProductsContext);
 
   let cardClass =
@@ -703,12 +712,26 @@ function FreeProductCard({ products, handleChooseSignup, error }) {
   }
 
   // @TODO: doublecheck this!
-  let currencySymbol = '$';
+  let currency = 'usd';
   if (products && products[1]) {
-    currencySymbol = getCurrencySymbol(products[1].monthlyPrice.currency);
-  } else {
-    currencySymbol = '$';
+    currency = products[1].monthlyPrice.currency;
   }
+
+  const currencyDisplay = getCurrencyDisplay(currency, locale);
+  const currencyClass =
+    currencyDisplay.position === 'before' &&
+    currencyDisplay.symbol.length > 1 &&
+    !currencyDisplay.separator
+      ? ' long'
+      : '';
+
+  const currencySign = (
+    <span className={'currency-sign' + currencyClass}>
+      {currencyDisplay.position === 'after' ? currencyDisplay.separator : ''}
+      {currencyDisplay.symbol}
+      {currencyDisplay.position === 'before' ? currencyDisplay.separator : ''}
+    </span>
+  );
 
   const hasOnlyFree = hasOnlyFreeProduct({ site });
   const freeBenefits = getFreeProductBenefits({ site });
@@ -739,12 +762,11 @@ function FreeProductCard({ products, handleChooseSignup, error }) {
           {!hasOnlyFree ? (
             <div className="gh-portal-product-card-pricecontainer free-trial-disabled">
               <div className="gh-portal-product-price">
-                <span className={'currency-sign' + (currencySymbol.length > 1 ? ' long' : '')}>
-                  {currencySymbol}
-                </span>
+                {currencyDisplay.position === 'before' && currencySign}
                 <span className="amount" data-testid="product-amount">
                   0
                 </span>
+                {currencyDisplay.position === 'after' && currencySign}
               </div>
               {/* <div className="gh-portal-product-alternative-price"></div> */}
             </div>

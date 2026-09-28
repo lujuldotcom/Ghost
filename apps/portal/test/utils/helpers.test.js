@@ -35,6 +35,8 @@ import {
   subscriptionHasFreeTrial,
   addMonths,
   formatPrice,
+  formatCurrency,
+  getCurrencyDisplay,
 } from '../../src/utils/helpers';
 import * as Fixtures from '../../src/utils/fixtures-generator';
 import {
@@ -349,9 +351,33 @@ describe('Helpers - ', () => {
       expect(formatPrice(1234.5, 'en-US')).toBe('1,234.50');
     });
 
+    test('uses an explicit locale instead of the environment locale', () => {
+      expect(formatPrice(5.4, 'fr-FR')).toBe('5,40');
+    });
+
     test('returns empty string for null/undefined input', () => {
       expect(formatPrice(null)).toBe('');
       expect(formatPrice(undefined)).toBe('');
+    });
+  });
+
+  describe('currency formatting - ', () => {
+    test('formats English currency before the amount', () => {
+      expect(getCurrencyDisplay('USD', 'en-US')).toEqual({
+        symbol: '$',
+        position: 'before',
+        separator: '',
+      });
+      expect(formatCurrency(5.4, 'USD', 'en-US')).toBe('$5.40');
+    });
+
+    test('formats French currency after the amount', () => {
+      const display = getCurrencyDisplay('EUR', 'fr-FR');
+
+      expect(display.symbol).toBe('€');
+      expect(display.position).toBe('after');
+      expect(display.separator).not.toBe('');
+      expect(formatCurrency(5.4, 'EUR', 'fr-FR')).toBe(`5,40${display.separator}€`);
     });
   });
 

@@ -8,10 +8,10 @@ import { MultipleProductsPlansSection } from '../common/plans-section';
 import { getDateString } from '../../utils/date-time';
 import {
   addMonths,
-  formatNumber,
+  formatCurrency,
   formatPrice,
   getAvailablePrices,
-  getCurrencySymbol,
+  getCurrencyDisplay,
   getFilteredPrices,
   isArchivedTier,
   isFreeMonthsOffer,
@@ -161,7 +161,7 @@ const CancelSubscriptionButton = ({ member, onCancelSubscription, action, brandC
 
 // For confirmation flows
 const PlanConfirmationSection = ({ plan, type, onConfirm }) => {
-  const { site, action, member, brandColor } = useContext(AppContext);
+  const { site, action, member, brandColor, locale = 'en' } = useContext(AppContext);
   const [reason, setReason] = useState('');
   const subscription = getMemberSubscription({ member });
   const isRunning = [
@@ -176,8 +176,8 @@ const PlanConfirmationSection = ({ plan, type, onConfirm }) => {
   if (currentActivePlan.id !== plan.id) {
     planStartingMessage = t('Starting today');
   }
-  const priceString = formatNumber(plan.price);
-  const planStartMessage = `${plan.currency_symbol}${priceString}/${translateCadence(plan.interval)} – ${planStartingMessage}`;
+  const priceString = formatCurrency(plan.price, plan.currency, locale);
+  const planStartMessage = `${priceString}/${translateCadence(plan.interval)} – ${planStartingMessage}`;
   const product = getProductFromPrice({ site, priceId: plan?.id });
   const priceLabel = product?.name;
   if (type === 'changePlan') {
@@ -374,16 +374,16 @@ function getRetentionOfferMessage(offer, originalPrice, currency, amountOff, sub
 }
 
 const RetentionOfferSection = ({ subscription, offer, onAcceptOffer, onDeclineOffer }) => {
-  const { brandColor, action } = useContext(AppContext);
+  const { brandColor, action, locale = 'en' } = useContext(AppContext);
   const isAcceptingOffer = action === 'applyOffer:running';
 
   const price = getPriceFromSubscription({ subscription });
   const originalAmount = price.amount / 100;
-  const originalPrice = formatPrice(originalAmount);
-  const currency = getCurrencySymbol(price.currency);
+  const originalPrice = formatCurrency(originalAmount, price.currency, locale);
+  const currencyDisplay = getCurrencyDisplay(price.currency, locale);
   const updatedAmount = getUpdatedOfferPrice({ offer, price });
-  const discountedPrice = formatPrice(updatedAmount);
-  const amountOff = getOfferOffAmount({ offer });
+  const discountedPrice = formatPrice(updatedAmount, locale);
+  const amountOff = getOfferOffAmount({ offer, locale });
 
   const cadenceLabel = offer.cadence === 'month' ? t('Monthly') : t('Yearly');
 
@@ -398,13 +398,7 @@ const RetentionOfferSection = ({ subscription, offer, onAcceptOffer, onDeclineOf
     t("We'd hate to see you leave. How about a special offer to stay?");
 
   const offerLabel = getRetentionOfferLabel(offer, amountOff);
-  const offerMessage = getRetentionOfferMessage(
-    offer,
-    originalPrice,
-    currency,
-    amountOff,
-    subscription,
-  );
+  const offerMessage = getRetentionOfferMessage(offer, originalPrice, '', amountOff, subscription);
 
   return (
     <div className="gh-portal-logged-out-form-container gh-portal-offer gh-portal-retention-offer">
@@ -420,13 +414,21 @@ const RetentionOfferSection = ({ subscription, offer, onAcceptOffer, onDeclineOf
           {!isFreeMonthsOffer(offer) && (
             <div className="gh-portal-retention-offer-price">
               <div className="gh-portal-product-price">
-                <span className="currency-sign">{currency}</span>
+                {currencyDisplay.position === 'before' && (
+                  <span className="currency-sign">
+                    {currencyDisplay.symbol}
+                    {currencyDisplay.separator}
+                  </span>
+                )}
                 <span className="amount">{discountedPrice}</span>
+                {currencyDisplay.position === 'after' && (
+                  <span className="currency-sign">
+                    {currencyDisplay.separator}
+                    {currencyDisplay.symbol}
+                  </span>
+                )}
               </div>
-              <div className="gh-portal-offer-oldprice">
-                {currency}
-                {originalPrice}
-              </div>
+              <div className="gh-portal-offer-oldprice">{originalPrice}</div>
             </div>
           )}
           <p className="footnote">{offerMessage}</p>

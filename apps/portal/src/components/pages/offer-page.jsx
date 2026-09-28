@@ -5,10 +5,11 @@ import CheckmarkIcon from '../../images/icons/checkmark.svg?react';
 import CloseButton from '../common/close-button';
 import InputForm from '../common/input-form';
 import {
-  getCurrencySymbol,
+  formatCurrency,
+  formatPrice,
+  getCurrencyDisplay,
   getProductFromId,
   getUpdatedOfferPrice,
-  formatNumber,
   hasMultipleNewsletters,
 } from '../../utils/helpers';
 import { ValidateInputForm } from '../../utils/form';
@@ -449,7 +450,7 @@ export default class OfferPage extends React.Component {
   }
 
   renderOfferTag() {
-    const { pageData: offer } = this.context;
+    const { pageData: offer, locale = 'en' } = this.context;
 
     if (offer.amount <= 0) {
       return <></>;
@@ -459,7 +460,7 @@ export default class OfferPage extends React.Component {
       return (
         <h5 className="gh-portal-discount-label" data-testid="offer-discount-label">
           {t('{amount} off', {
-            amount: `${getCurrencySymbol(offer.currency)}${offer.amount / 100}`,
+            amount: formatCurrency(offer.amount / 100, offer.currency, locale),
           })}
         </h5>
       );
@@ -497,9 +498,10 @@ export default class OfferPage extends React.Component {
   }
 
   getOriginalPrice({ offer, product }) {
+    const { locale = 'en' } = this.context;
     const price = offer.cadence === 'month' ? product.monthlyPrice : product.yearlyPrice;
     const originalAmount = this.renderRoundedPrice(price.amount / 100);
-    return `${getCurrencySymbol(price.currency)}${originalAmount}/${translateCadence(offer.cadence)}`;
+    return `${formatCurrency(originalAmount, price.currency, locale)}/${translateCadence(offer.cadence)}`;
   }
 
   renderRoundedPrice(price) {
@@ -511,8 +513,10 @@ export default class OfferPage extends React.Component {
   }
 
   getOffAmount({ offer }) {
+    const { locale = 'en' } = this.context;
+
     if (offer.type === 'fixed') {
-      return `${getCurrencySymbol(offer.currency)}${offer.amount / 100}`;
+      return formatCurrency(offer.amount / 100, offer.currency, locale);
     } else if (offer.type === 'percent') {
       return `${offer.amount}%`;
     } else if (offer.type === 'trial') {
@@ -583,37 +587,46 @@ export default class OfferPage extends React.Component {
   }
 
   renderUpdatedTierPrice({ offer, currencyClass, updatedPrice, price }) {
+    const { locale = 'en' } = this.context;
+    const currencyDisplay = getCurrencyDisplay(price.currency, locale);
+    const formattedAmount = formatPrice(this.renderRoundedPrice(updatedPrice), locale);
+    const currencySign = (
+      <span className={'currency-sign ' + currencyClass}>
+        {currencyDisplay.position === 'after' ? currencyDisplay.separator : ''}
+        {currencyDisplay.symbol}
+        {currencyDisplay.position === 'before' ? currencyDisplay.separator : ''}
+      </span>
+    );
+
+    const renderedPrice = (
+      <div className="gh-portal-product-price" data-testid="offer-updated-price">
+        {currencyDisplay.position === 'before' && currencySign}
+        <span className="amount">{formattedAmount}</span>
+        {currencyDisplay.position === 'after' && currencySign}
+      </div>
+    );
+
     if (offer.type === 'trial') {
       return (
         <div className="gh-portal-product-card-pricecontainer offer-type-trial">
-          <div className="gh-portal-product-price" data-testid="offer-updated-price">
-            <span className={'currency-sign ' + currencyClass}>
-              {getCurrencySymbol(price.currency)}
-            </span>
-            <span className="amount">{formatNumber(this.renderRoundedPrice(updatedPrice))}</span>
-          </div>
+          {renderedPrice}
         </div>
       );
     }
-    return (
-      <div className="gh-portal-product-card-pricecontainer">
-        <div className="gh-portal-product-price" data-testid="offer-updated-price">
-          <span className={'currency-sign ' + currencyClass}>
-            {getCurrencySymbol(price.currency)}
-          </span>
-          <span className="amount">{formatNumber(this.renderRoundedPrice(updatedPrice))}</span>
-        </div>
-      </div>
-    );
+
+    return <div className="gh-portal-product-card-pricecontainer">{renderedPrice}</div>;
   }
 
   renderOldTierPrice({ offer, price }) {
     if (offer.type === 'trial') {
       return null;
     }
+
+    const { locale = 'en' } = this.context;
+
     return (
       <div className="gh-portal-offer-oldprice">
-        {getCurrencySymbol(price.currency)} {formatNumber(price.amount / 100)}
+        {formatCurrency(price.amount / 100, price.currency, locale)}
       </div>
     );
   }
@@ -658,7 +671,7 @@ export default class OfferPage extends React.Component {
   }
 
   render() {
-    const { pageData: offer, site } = this.context;
+    const { pageData: offer, site, locale = 'en' } = this.context;
     if (!offer || !offer.tier) {
       return null;
     }
@@ -670,7 +683,13 @@ export default class OfferPage extends React.Component {
     const updatedPrice = getUpdatedOfferPrice({ offer, price });
     const benefits = product.benefits || [];
 
-    const currencyClass = getCurrencySymbol(price.currency).length > 1 ? 'long' : '';
+    const currencyDisplay = getCurrencyDisplay(price.currency, locale);
+    const currencyClass =
+      currencyDisplay.position === 'before' &&
+      currencyDisplay.symbol.length > 1 &&
+      !currencyDisplay.separator
+        ? 'long'
+        : '';
 
     return (
       <>

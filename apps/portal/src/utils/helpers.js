@@ -784,10 +784,9 @@ export const getStripeAmount = (amount) => {
   return amount / 100;
 };
 
-export const getPriceString = (price = {}) => {
-  const symbol = getCurrencySymbol(price.currency);
+export const getPriceString = (price = {}, locale = 'en') => {
   const amount = getStripeAmount(price.amount);
-  return `${symbol}${amount}/${price.interval}`;
+  return `${formatCurrency(amount, price.currency, locale)}/${price.interval}`;
 };
 
 export const formatNumber = (amount) => {
@@ -797,7 +796,7 @@ export const formatNumber = (amount) => {
   return amount.toLocaleString();
 };
 
-export const formatPrice = (amount, locale) => {
+export const formatPrice = (amount, locale = 'en') => {
   if (amount === undefined || amount === null) {
     return '';
   }
@@ -811,7 +810,65 @@ export const formatPrice = (amount, locale) => {
     ? undefined
     : { minimumFractionDigits: 2, maximumFractionDigits: 2 };
 
-  return normalizedAmount.toLocaleString(locale, options);
+  return normalizedAmount.toLocaleString(locale || 'en', options);
+};
+
+export const getCurrencyDisplay = (currency, locale = 'en') => {
+  if (!currency) {
+    return {
+      symbol: '',
+      position: 'before',
+      separator: '',
+    };
+  }
+
+  const parts = Intl.NumberFormat(locale || 'en', {
+    currency,
+    style: 'currency',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).formatToParts(0);
+
+  const currencyIndex = parts.findIndex((part) => part.type === 'currency');
+  const numberIndex = parts.findIndex((part) => part.type === 'integer');
+
+  if (currencyIndex === -1 || numberIndex === -1) {
+    return {
+      symbol: getCurrencySymbol(currency),
+      position: 'before',
+      separator: '',
+    };
+  }
+
+  const startIndex = Math.min(currencyIndex, numberIndex);
+  const endIndex = Math.max(currencyIndex, numberIndex);
+  const separator = parts
+    .slice(startIndex + 1, endIndex)
+    .filter((part) => part.type === 'literal')
+    .map((part) => part.value)
+    .join('');
+
+  return {
+    symbol: parts[currencyIndex].value,
+    position: currencyIndex < numberIndex ? 'before' : 'after',
+    separator,
+  };
+};
+
+export const formatCurrency = (amount, currency, locale = 'en') => {
+  const formattedAmount = formatPrice(amount, locale);
+
+  if (!formattedAmount || !currency) {
+    return formattedAmount;
+  }
+
+  const { symbol, position, separator } = getCurrencyDisplay(currency, locale);
+
+  if (position === 'after') {
+    return `${formattedAmount}${separator}${symbol}`;
+  }
+
+  return `${symbol}${separator}${formattedAmount}`;
 };
 
 export const createPopupNotification = ({
@@ -884,7 +941,7 @@ export function getPriceIdFromPageQuery({ site, pageQuery }) {
   return null;
 }
 
-export const getOfferOffAmount = ({ offer }) => {
+export const getOfferOffAmount = ({ offer, locale = 'en' }) => {
   if (isFreeMonthsOffer(offer)) {
     const months = offer.duration_in_months;
     if (months === 1) {
@@ -893,7 +950,7 @@ export const getOfferOffAmount = ({ offer }) => {
 
     return t('{months} months', { months });
   } else if (offer.type === 'fixed') {
-    return `${getCurrencySymbol(offer.currency)}${formatPrice(offer.amount / 100)}`;
+    return formatCurrency(offer.amount / 100, offer.currency, locale);
   } else if (offer.type === 'percent') {
     return `${offer.amount}%`;
   }
