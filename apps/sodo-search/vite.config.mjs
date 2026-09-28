@@ -21,7 +21,12 @@ export default publicAppViteConfig({
     },
     build: {
       rollupOptions: {
+        external: ['react', 'react-dom'],
         output: {
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+          },
           // Theme templates reference umd/main.css by name (see
           // ghost/core defaults.json → sodoSearch.styles), so the
           // CSS sibling emitted by Vite must keep that filename.

@@ -21,6 +21,17 @@ export default publicAppViteConfig({
         ),
       },
     },
+    build: {
+      rollupOptions: {
+        external: ['react', 'react-dom'],
+        output: {
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+          },
+        },
+      },
+    },
     test: {
       setupFiles: './test/setup-tests.js',
       coverage: {

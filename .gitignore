@@ -172,6 +172,9 @@ Caddyfile
 # Announcement-Bar
 /apps/announcement-bar/umd
 
+# lujul public app vendor
+/apps/vendor/umd
+
 # Build files
 /apps/*/build
 /ghost/*/build
