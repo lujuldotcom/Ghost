@@ -132,7 +132,7 @@ const AddDetailsPopup = (props: Props) => {
 
   return (
     <div
-      className="rounded-none relative h-screen w-screen overflow-hidden bg-white p-[28px] text-center shadow-modal sm:h-auto sm:w-[720px] sm:rounded-xl sm:p-0"
+      className="rounded-none relative h-screen w-screen overflow-hidden bg-white p-[28px] text-center shadow-modal sm:h-auto sm:rounded-xl sm:p-0 md:w-[720px]"
       data-testid="profile-modal"
       onMouseDown={(event) => event.stopPropagation()}
     >
