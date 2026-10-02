@@ -2,7 +2,7 @@ import AppContext from './app-context';
 import PopupModal from './components/popup-modal';
 import SearchIndex from './search-index';
 import i18nLib from '@tryghost/i18n/registry/search';
-import { useCallback, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 type AppProps = {
   adminUrl: string;
@@ -50,11 +50,18 @@ export default function App({
   outfitRegularUrl,
   outfitBoldUrl,
 }: AppProps) {
-  const [{ t, dir, searchIndex }] = useState(() => {
-    const i18n = i18nLib(locale || 'en', 'search');
+  const i18n = useMemo(() => i18nLib(locale || 'en', 'search'), [locale]);
+  const t = i18n.t;
+  /*
+   * lujul currently bundles only en/fr for Search; unsupported locales fall
+   * back to English, so runtime locale switches cannot change direction.
+   * SearchIndex fixes its tokenisation direction at construction time.
+   * Supporting a future RTL locale therefore requires a separate reindexing
+   * contract rather than changing only the rendered frame direction.
+   */
+  const [{ dir, searchIndex }] = useState(() => {
     const i18nDir = i18n.dir() || 'ltr';
     return {
-      t: i18n.t,
       dir: i18nDir,
       searchIndex: new SearchIndex({ adminUrl, apiKey, dir: i18nDir }),
     };

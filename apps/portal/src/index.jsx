@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './app';
+import { observeScriptLocale } from './utils/observe-script-locale';
 
 const ROOT_DIV_ID = 'ghost-portal-root';
 
@@ -12,11 +13,14 @@ function addRootDiv() {
   document.body.appendChild(elem);
 }
 
-function getSiteData() {
+function getScriptTag() {
   /**
    * @type {HTMLElement}
    */
-  const scriptTag = document.querySelector('script[data-ghost]');
+  return document.querySelector('script[data-ghost]');
+}
+
+function getSiteData(scriptTag) {
   if (scriptTag) {
     const siteI18nEnabled = scriptTag.dataset.i18n === 'true';
     const siteUrl = scriptTag.dataset.ghost;
@@ -56,6 +60,7 @@ function setPreviewTheme() {
 }
 
 function init() {
+  const scriptTag = getScriptTag();
   // const customSiteUrl = getSiteUrl();
   const {
     siteUrl: customSiteUrl,
@@ -65,28 +70,40 @@ function init() {
     locale,
     outfitRegularUrl,
     outfitBoldUrl,
-  } = getSiteData();
+  } = getSiteData(scriptTag);
   const siteUrl = customSiteUrl || window.location.origin;
 
   setPreviewTheme();
   addRootDiv();
   handleTokenUrl();
 
-  ReactDOM.render(
-    <React.StrictMode>
-      <App
-        siteUrl={siteUrl}
-        customSiteUrl={customSiteUrl}
-        apiKey={apiKey}
-        apiUrl={apiUrl}
-        siteI18nEnabled={siteI18nEnabled}
-        locale={locale}
-        outfitRegularUrl={outfitRegularUrl}
-        outfitBoldUrl={outfitBoldUrl}
-      />
-    </React.StrictMode>,
-    document.getElementById(ROOT_DIV_ID),
-  );
+  const root = document.getElementById(ROOT_DIV_ID);
+
+  // Rendering the same element tree into the same root updates the mounted App's
+  // props instead of remounting it, so a locale change keeps Portal's state.
+  const renderApp = (appLocale) => {
+    ReactDOM.render(
+      <React.StrictMode>
+        <App
+          siteUrl={siteUrl}
+          customSiteUrl={customSiteUrl}
+          apiKey={apiKey}
+          apiUrl={apiUrl}
+          siteI18nEnabled={siteI18nEnabled}
+          locale={appLocale}
+          outfitRegularUrl={outfitRegularUrl}
+          outfitBoldUrl={outfitBoldUrl}
+        />
+      </React.StrictMode>,
+      root,
+    );
+  };
+
+  renderApp(locale);
+
+  if (scriptTag) {
+    observeScriptLocale(scriptTag, renderApp);
+  }
 }
 
 init();

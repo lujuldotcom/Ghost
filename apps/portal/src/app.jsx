@@ -155,6 +155,11 @@ export default class App extends React.Component {
       }
     }
 
+    // While bootstrap is running, initSetup() picks up the latest locale prop itself.
+    if (prevProps.locale !== this.props.locale && this.state.initStatus === 'success') {
+      this.setState(this.applyI18nLanguage(this.state.site));
+    }
+
     if (this.state.initStatus === 'success' && prevState.initStatus !== this.state.initStatus) {
       const { siteUrl } = this.props;
       const contextState = this.getContextFromState();
@@ -314,10 +319,9 @@ export default class App extends React.Component {
         pageQuery,
         pageData,
       } = await this.fetchData();
-      const i18nLanguage = this.props.siteI18nEnabled
-        ? this.props.locale || site.locale || 'en'
-        : 'en';
-      i18n.changeLanguage(i18nLanguage);
+      // Read after the API resolves, so a data-locale change made while bootstrap was
+      // in flight is the one Portal starts with.
+      const localeState = this.applyI18nLanguage(site);
 
       const state = {
         site,
@@ -332,10 +336,9 @@ export default class App extends React.Component {
         popupNotification,
         notification,
         notificationSequence,
-        dir: i18n.dir() || 'ltr',
+        ...localeState,
         action: 'init:success',
         initStatus: 'success',
-        locale: i18nLanguage,
       };
 
       this.setState(state, () => {
@@ -372,6 +375,16 @@ export default class App extends React.Component {
         initStatus: 'failed',
       });
     }
+  }
+
+  applyI18nLanguage(site) {
+    const locale = this.props.siteI18nEnabled ? this.props.locale || site?.locale || 'en' : 'en';
+    i18n.changeLanguage(locale);
+
+    return {
+      locale,
+      dir: i18n.dir() || 'ltr',
+    };
   }
 
   /** Fetch state data from all available sources */

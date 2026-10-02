@@ -6,6 +6,12 @@ export default class Frame extends Component {
     this.node.addEventListener('load', this.handleLoad);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.iframeHtml && prevProps.dataDir !== this.props.dataDir) {
+      this.iframeHtml.setAttribute('dir', this.props.dataDir);
+    }
+  }
+
   handleLoad = () => {
     this.setupFrameBaseStyle();
   };
