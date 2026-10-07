@@ -26,14 +26,14 @@ describe('OfferPage', () => {
     {
       locale: 'de-CH',
       oldPrice: 'CHF 6.90',
-      updatedPrice: 'CHF3.45',
-      originalPrice: 'CHF6.90/month',
+      updatedPrice: 'CHF 3.45',
+      originalPrice: 'CHF 6.90/month',
     },
     {
       locale: 'de-DE',
-      oldPrice: 'CHF 6,90',
-      updatedPrice: 'CHF3,45',
-      originalPrice: 'CHF6,90/month',
+      oldPrice: '6,90 CHF',
+      updatedPrice: '3,45 CHF',
+      originalPrice: '6,90 CHF/month',
     },
   ])(
     'formats original and discounted prices using $locale',
@@ -43,7 +43,7 @@ describe('OfferPage', () => {
       });
       const offer = getOfferData({ tierId: product.id, amount: 50, duration: 'once' });
       const site = { ...getSiteData({ products: [product] }), locale };
-      const { container, getByTestId } = setup({ site, pageData: offer });
+      const { container, getByTestId } = setup({ site, pageData: offer, locale });
 
       expect(container.querySelector('.gh-portal-offer-oldprice')).toHaveTextContent(oldPrice);
       expect(getByTestId('offer-updated-price')).toHaveTextContent(updatedPrice);
@@ -52,15 +52,15 @@ describe('OfferPage', () => {
   );
 
   test.each([
-    { locale: 'de-CH', updatedPrice: 'CHF5.80', discount: 'CHF1.10 off' },
-    { locale: 'de-DE', updatedPrice: 'CHF5,80', discount: 'CHF1,10 off' },
+    { locale: 'de-CH', updatedPrice: 'CHF 5.80', discount: 'CHF 1.10 off' },
+    { locale: 'de-DE', updatedPrice: '5,80 CHF', discount: '1,10 CHF off' },
   ])('formats fixed discounts using $locale', ({ locale, updatedPrice, discount }) => {
     const product = getProductData({
       monthlyPrice: getPriceData({ interval: 'month', amount: 690, currency: 'CHF' }),
     });
     const offer = getOfferData({ tierId: product.id, type: 'fixed', amount: 110, currency: 'CHF' });
     const site = { ...getSiteData({ products: [product] }), locale };
-    const { getByTestId } = setup({ site, pageData: offer });
+    const { getByTestId } = setup({ site, pageData: offer, locale });
 
     expect(getByTestId('offer-updated-price')).toHaveTextContent(updatedPrice);
     expect(getByTestId('offer-discount-label')).toHaveTextContent(discount);
@@ -73,10 +73,10 @@ describe('OfferPage', () => {
     });
     const offer = getOfferData({ tierId: product.id, type: 'trial', amount: 7, duration: 'trial' });
     const site = { ...getSiteData({ products: [product] }), locale: 'de-DE' };
-    const { getByTestId } = setup({ site, pageData: offer });
+    const { getByTestId } = setup({ site, pageData: offer, locale: 'de-DE' });
 
-    expect(getByTestId('offer-updated-price')).toHaveTextContent('CHF6,90');
-    expect(getByTestId('offer-message')).toHaveTextContent('then CHF6,90/month');
+    expect(getByTestId('offer-updated-price')).toHaveTextContent('6,90 CHF');
+    expect(getByTestId('offer-message')).toHaveTextContent('then 6,90 CHF/month');
   });
 
   test('sanitizes malicious XSS in signup terms HTML', () => {

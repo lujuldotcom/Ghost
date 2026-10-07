@@ -47,10 +47,10 @@ const setup = (overrides) => {
 
 describe('SignupPage', () => {
   test.each([
-    { locale: 'de-CH', trialDays: null, amount: '6.90', alternate: 'CHF69.90/year' },
-    { locale: 'de-DE', trialDays: null, amount: '6,90', alternate: 'CHF69,90/year' },
-    { locale: 'de-CH', trialDays: 7, amount: '6.90', alternate: 'CHF69.90/year' },
-    { locale: 'de-DE', trialDays: 7, amount: '6,90', alternate: 'CHF69,90/year' },
+    { locale: 'de-CH', trialDays: null, amount: '6.90', alternate: 'CHF 69.90/year' },
+    { locale: 'de-DE', trialDays: null, amount: '6,90', alternate: '69,90 CHF/year' },
+    { locale: 'de-CH', trialDays: 7, amount: '6.90', alternate: 'CHF 69.90/year' },
+    { locale: 'de-DE', trialDays: 7, amount: '6,90', alternate: '69,90 CHF/year' },
   ])(
     'formats plan prices using $locale with trialDays=$trialDays',
     ({ locale, trialDays, amount, alternate }) => {
@@ -67,7 +67,7 @@ describe('SignupPage', () => {
         }),
         locale,
       };
-      const { container } = setup({ site });
+      const { container } = setup({ site, locale });
 
       expect(getByTestId(container, 'product-amount')).toHaveTextContent(amount);
       expect(container.querySelector('.gh-portal-product-alternative-price')).toHaveTextContent(

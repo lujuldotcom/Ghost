@@ -344,7 +344,7 @@ describe('Helpers - ', () => {
     });
 
     test('returns fractional numbers with two decimals', () => {
-      expect(formatPrice(5.4)).toBe('5.40');
+      expect(formatPrice(5.4, 'en-US')).toBe('5.40');
     });
 
     test('returns fractional numbers with locale grouping', () => {

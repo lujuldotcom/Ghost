@@ -500,7 +500,7 @@ export default class OfferPage extends React.Component {
   getOriginalPrice({ offer, product }) {
     const { locale = 'en' } = this.context;
     const price = offer.cadence === 'month' ? product.monthlyPrice : product.yearlyPrice;
-    const originalAmount = this.renderRoundedPrice(price.amount / 100);
+    const originalAmount = price.amount / 100;
     return `${formatCurrency(originalAmount, price.currency, locale)}/${translateCadence(offer.cadence)}`;
   }
 
@@ -581,7 +581,7 @@ export default class OfferPage extends React.Component {
   renderUpdatedTierPrice({ offer, currencyClass, updatedPrice, price }) {
     const { locale = 'en' } = this.context;
     const currencyDisplay = getCurrencyDisplay(price.currency, locale);
-    const formattedAmount = formatPrice(this.renderRoundedPrice(updatedPrice), locale);
+    const formattedAmount = formatPrice(updatedPrice, locale);
     const currencySign = (
       <span className={'currency-sign ' + currencyClass}>
         {currencyDisplay.position === 'after' ? currencyDisplay.separator : ''}

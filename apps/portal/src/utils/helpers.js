@@ -796,7 +796,7 @@ export const formatNumber = (amount) => {
   return amount.toLocaleString();
 };
 
-export const formatPrice = (amount, locale = 'en') => {
+export const formatPrice = (amount, locale) => {
   if (amount === undefined || amount === null) {
     return '';
   }
